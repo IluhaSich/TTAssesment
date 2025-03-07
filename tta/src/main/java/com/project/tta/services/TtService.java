@@ -27,7 +27,7 @@ public class TtService {
     }
 
     public List<TtGradeDto> getAllGrades() {
-        return ttRepository.findAll().stream().map(task -> modelMapper.map(task, TtGradeDto.class)).toList();
+        return ttRepository.findAll().stream().map(grade -> modelMapper.map(grade, TtGradeDto.class)).toList();
     }
 
     public boolean existsById(String gradeId) {
