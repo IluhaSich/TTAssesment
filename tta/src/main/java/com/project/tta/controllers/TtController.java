@@ -32,7 +32,7 @@ public class TtController {
     }
 
     @GetMapping("/deleteGrade")
-    public Map<String, String> deleteGrade(@RequestParam(name = "id") String gradeId) {
+    public Map<String, String> deleteGrade(@RequestParam(name = "id") int gradeId) {
 
         if (!ttService.existsById(gradeId)) {
             throw new AppException("Grade not found.");

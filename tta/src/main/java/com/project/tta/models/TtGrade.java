@@ -1,35 +1,27 @@
 package com.project.tta.models;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document
-public class TtGrade {
-    @Id
-    private String id;
-    @Field(name = "name")
+@Entity
+@Table(name = "grades")
+public class TtGrade extends BaseEntity {
     private String name;
-    @Field(name = "grade")
     private String grade;
 
     public TtGrade() {
     }
 
-    public TtGrade(String id, String name, String grade) {
-        this.id = id;
+    public TtGrade(String name, String grade) {
         this.name = name;
         this.grade = grade;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -38,6 +30,7 @@ public class TtGrade {
         this.name = name;
     }
 
+    @Column(name = "grade")
     public String getGrade() {
         return grade;
     }
