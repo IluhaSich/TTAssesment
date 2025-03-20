@@ -1,4 +1,4 @@
-package org.example;
+package com.project.tta.models;
 
 public class GroupLink {
     private String name;
