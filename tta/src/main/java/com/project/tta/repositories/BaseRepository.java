@@ -1,17 +1,17 @@
 package com.project.tta.repositories;
 
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.Repository;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-@Repository
-public interface BaseRepository<EntityClass> extends CrudRepository<EntityClass, Integer> {
+@NoRepositoryBean
+public interface BaseRepository<T, ID> extends Repository<T, ID> {
 
-    <S extends EntityClass> S save(S entity);
+    <S extends T> S save(S entity);
 
-    Set<EntityClass> findAll();
+    List<T> findAll();
 
-    Optional<EntityClass> findById(Integer entity_id);
+    Optional<T> findById(Long entity_id);
 }

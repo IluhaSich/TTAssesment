@@ -1,22 +1,22 @@
 package com.project.tta.controllers;
 
 import com.project.tta.dtos.TtGradeDto;
-import com.project.tta.exeptions.AppException;
 import com.project.tta.forms.TtGradeForm;
 import com.project.tta.models.TtGrade;
 import com.project.tta.services.TtService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/tt")
 public class TtController {
-    @Autowired
+
     private TtService ttService;
+
+    public TtController(TtService ttService) {
+        this.ttService = ttService;
+    }
 
     @GetMapping("/getAllGrades")
     public List<TtGradeDto> getAllGrades() {
@@ -29,19 +29,6 @@ public class TtController {
         grade.setName(form.getName());
         grade.setGrade(form.getGrade());
         return ttService.save(grade);
-    }
-
-    @GetMapping("/deleteGrade")
-    public Map<String, String> deleteGrade(@RequestParam(name = "id") int gradeId) {
-
-        if (!ttService.existsById(gradeId)) {
-            throw new AppException("Grade not found.");
-        }
-
-        ttService.deleteGrade(gradeId);
-        HashMap<String, String> map = new HashMap<>();
-        map.put("result", "all_ok");
-        return map;
     }
 
 }
