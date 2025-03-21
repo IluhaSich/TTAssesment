@@ -1,6 +1,7 @@
 package com.project.tta.controllers;
 
 import com.project.tta.models.GroupLink;
+import com.project.tta.services.EvaluationService;
 import com.project.tta.services.TimeTableParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +14,14 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/parser")
 public class TimeTableController {
     private static final Logger log = LoggerFactory.getLogger(TimeTableController.class);
     private final TimeTableParser timeTableParser;
+    private final EvaluationService evaluationService;
 
-    public TimeTableController(TimeTableParser timeTableParser) {
+    public TimeTableController(TimeTableParser timeTableParser, EvaluationService evaluationService) {
         this.timeTableParser = timeTableParser;
+        this.evaluationService = evaluationService;
     }
     @GetMapping("/links")
     public List<GroupLink> getLinks() {
@@ -38,6 +40,18 @@ public class TimeTableController {
         String result = "";
         try {
             result = timeTableParser.printTimeTable(timeTableParser.getTimeTable(link));
+        }catch (IOException e){
+            log.error("IOException when getTimeTable with link = "+link + " :" + e);
+        }
+        return result;
+    }
+
+    @GetMapping("/grade/{link}")
+    public int getGrade(@PathVariable String link) {
+        link = "/timetable/" + link;
+        int result = 0;
+        try {
+            result += evaluationService.evaluateTable(timeTableParser.getTimeTable(link));
         }catch (IOException e){
             log.error("IOException when getTimeTable with link = "+link + " :" + e);
         }
