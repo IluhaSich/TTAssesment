@@ -95,26 +95,8 @@ public class EvaluationService implements EvaluationInterface {
 //        return grade;
 //    }
 //
-//    public boolean dayIsFree(String[] dayTable) {
-//        //Возвращает true если день без пар
-//        boolean free = true;
-//        for (String lesson : dayTable) {
-//            if (lesson != null  && !lesson.equals("nothing")) {
-//                free = false;
-//                break;
-//            }
-//        }
-//        return free;
-//    }
 //
-//    public int lessonQuantityPerDay(String[] dayTable) {
-//        //Возвращает количество пар в дне
-//        int lQuantity = 0;
-//        for (String lesson : dayTable) {
-//            if (lesson != null && !lesson.equals("nothing")) lQuantity += 1;
-//        }
-//        return lQuantity;
-//    }
+
 
     @Override
     public int evaluateTimeTable(String[][] table) {
@@ -166,6 +148,34 @@ public class EvaluationService implements EvaluationInterface {
     @Override
     public int evaluateForHavingLongBreak(String[][] table) {
         return 0;
+    }
+
+    /**
+     * @param dayTable расписание на день
+     * @return Возвращает количество пар в определенный день
+     */
+    private int lessonInDayQuantity(String[] dayTable) {
+        int lQuantity = 0;
+        for (String lesson : dayTable) {
+            if (lesson != null && !lesson.equals("nothing")) lQuantity += 1;
+        }
+        return lQuantity;
+    }
+
+    /**
+     * @param dayTable расписание на день
+     * @return Возвращает true если в этот день нет пар
+     */
+    public boolean dayIsFree(String[] dayTable) {
+        //Возвращает true если день без пар
+        boolean free = true;
+        for (String lesson : dayTable) {
+            if (lesson != null  && !lesson.equals("nothing")) {
+                free = false;
+                break;
+            }
+        }
+        return free;
     }
 
 }
