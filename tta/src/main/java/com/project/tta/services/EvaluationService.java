@@ -4,6 +4,7 @@ import com.project.tta.services.interfaces.EvaluationInterface;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Service
 public class EvaluationService implements EvaluationInterface {
@@ -122,6 +123,10 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public int evaluateStudyDays(String[][] table) {
+
+        for (String[] day : table) {
+            if (dayIsFree(day)) ;
+        }
         return 0;
     }
 
@@ -154,28 +159,31 @@ public class EvaluationService implements EvaluationInterface {
      * @param dayTable расписание на день
      * @return Возвращает количество пар в определенный день
      */
-    private int lessonInDayQuantity(String[] dayTable) {
-        int lQuantity = 0;
-        for (String lesson : dayTable) {
-            if (lesson != null && !lesson.equals("nothing")) lQuantity += 1;
-        }
-        return lQuantity;
+    private static int getLessonQuantity(String[] dayTable) {
+        return (int) Arrays.stream(dayTable).filter(str -> !str.equals("nothing")).count();
+    }
+    /**
+     * @param dayTable полное расписание (на две недели)
+     * @return Возвращает количество всех пар
+     */
+    private static int getLessonQuantity(String[][] dayTable) {
+        return (int) Arrays.stream(dayTable).mapToInt(EvaluationService::getLessonQuantity).sum();
     }
 
     /**
      * @param dayTable расписание на день
      * @return Возвращает true если в этот день нет пар
      */
-    public boolean dayIsFree(String[] dayTable) {
-        //Возвращает true если день без пар
-        boolean free = true;
-        for (String lesson : dayTable) {
-            if (lesson != null  && !lesson.equals("nothing")) {
-                free = false;
-                break;
-            }
-        }
-        return free;
+    private static boolean dayIsFree(String[] dayTable) {
+        return Arrays.stream(dayTable).allMatch(str -> str.equals("nothing"));
     }
 
+    /**
+     * Возвращает количество свободных дней
+     * @param timeTable полное расписание (на две недели)
+     * @return количество свободных дней
+     */
+    private static int getFreeDaysQuantity(String[][] timeTable) {
+        return (int) Arrays.stream(timeTable).filter(EvaluationService::dayIsFree).count();
+    }
 }
