@@ -2,17 +2,21 @@ package com.project.tta.services;
 
 import com.project.tta.services.interfaces.EvaluationInterface;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 @Service
 public class EvaluationService implements EvaluationInterface {
+    private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
     private final TimeTableParser timeTableParser;
 
     public EvaluationService(TimeTableParser timeTableParser) {
         this.timeTableParser = timeTableParser;
     }
+
 //
 //    public int evaluateTable(String[][] table) {
 //        if (table == null) {
@@ -132,7 +136,20 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public int evaluateDailyLoad(String[][] table) {
-        return 0;
+        if (table == null || table.length == 0) {
+            return 0;
+        }
+        int totalLessons = getLessonQuantity(table);
+        int result;
+        if (totalLessons < 20) {
+            result = -3;
+        } else if (totalLessons > 30) {
+            result = -3;
+        } else {
+            result = 3;
+        }
+        log.info("evaluate by weekend distribution and return {}", result);
+        return result;
     }
 
     @Override
@@ -142,31 +159,102 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public int evaluateLessonEndTime(String[][] table) {
-        return 0;
+        int lateDays = 0;
+        int earlyDays = 0;
+
+        for (String[] day : table) {
+            if (dayIsFree(day)) continue;
+
+            boolean hasLateClass = false;
+            boolean allEarly = true;
+
+            for (String lesson : day) {
+                String endTime = lesson.split("-")[1];
+                int hour = Integer.parseInt(endTime.split(":")[0]);
+
+                if (hour >= 18) hasLateClass = true;
+                if (hour >= 16) allEarly = false;
+            }
+
+            if (hasLateClass) lateDays++;
+            if (allEarly) earlyDays++;
+        }
+        int result;
+        if (lateDays > 3) {
+            result = -3;
+        } else if (earlyDays >= 3) {
+            result = 3;
+        } else {
+            result = 0;
+        }
+        log.info("evaluate by weekend distribution and return {}", result);
+        return result;
     }
 
-    @Override
-    public int evaluateWeekendDistribution(String[][] table) {
-        return 0;
-    }
+        @Override
+        public int evaluateWeekendDistribution(String[][] table){
+            return 0;
+        }
 
-    @Override
-    public int evaluateForHavingLongBreak(String[][] table) {
-        return 0;
+        @Override
+        public int evaluateForHavingLongBreak(String[][] table){
+            int daysWithBreaks = 0;
+
+            for (String[] day : table) {
+                if (dayIsFree(day)) continue;
+
+                boolean hasLongBreak = false;
+
+                for (int i = 0; i < day.length - 1; i++) {
+                    String currentEnd = day[i].split("-")[1];
+                    String nextStart = day[i+1].split("-")[0];
+
+                    int breakDuration = calculateBreakDuration(currentEnd, nextStart);
+
+                    if (breakDuration > 60) {
+                        hasLongBreak = true;
+                        break;
+                    }
+                }
+
+                if (hasLongBreak) {
+                    daysWithBreaks++;
+                }
+            }
+            int result;
+            if (daysWithBreaks == 0) {
+                result = 2;
+            } else {
+                result = -2;
+            }
+            log.info("evaluate by weekend distribution and return {}", result);
+            return result;
+        }
+
+    private static int calculateBreakDuration(String endTime, String startTime) {
+        String[] endParts = endTime.split(":");
+        String[] startParts = startTime.split(":");
+
+        int endHour = Integer.parseInt(endParts[0]);
+        int endMin = Integer.parseInt(endParts[1]);
+        int startHour = Integer.parseInt(startParts[0]);
+        int startMin = Integer.parseInt(startParts[1]);
+
+        return (startHour * 60 + startMin) - (endHour * 60 + endMin);
     }
 
     /**
      * @param dayTable расписание на день
      * @return Возвращает количество пар в определенный день
      */
-    private static int getLessonQuantity(String[] dayTable) {
+    private static int getLessonQuantity (String[]dayTable){
         return (int) Arrays.stream(dayTable).filter(str -> !str.equals("nothing")).count();
     }
     /**
      * @param dayTable полное расписание (на две недели)
      * @return Возвращает количество всех пар
      */
-    private static int getLessonQuantity(String[][] dayTable) {
+    private static int getLessonQuantity (String[][]dayTable){
         return (int) Arrays.stream(dayTable).mapToInt(EvaluationService::getLessonQuantity).sum();
     }
 
@@ -174,7 +262,7 @@ public class EvaluationService implements EvaluationInterface {
      * @param dayTable расписание на день
      * @return Возвращает true если в этот день нет пар
      */
-    private static boolean dayIsFree(String[] dayTable) {
+    private static boolean dayIsFree (String[]  dayTable){
         return Arrays.stream(dayTable).allMatch(str -> str.equals("nothing"));
     }
 
@@ -183,7 +271,7 @@ public class EvaluationService implements EvaluationInterface {
      * @param timeTable полное расписание (на две недели)
      * @return количество свободных дней
      */
-    private static int getFreeDaysQuantity(String[][] timeTable) {
+    private static int getFreeDaysQuantity (String[][]timeTable){
         return (int) Arrays.stream(timeTable).filter(EvaluationService::dayIsFree).count();
     }
 }
