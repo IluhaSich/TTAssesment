@@ -102,7 +102,6 @@ public class EvaluationService implements EvaluationInterface {
 //
 //
 
-
     @Override
     public int evaluateTimeTable(String[][] table) {
         if (table == null) {
@@ -251,11 +250,11 @@ public class EvaluationService implements EvaluationInterface {
         return (int) Arrays.stream(dayTable).filter(str -> !str.equals("nothing")).count();
     }
     /**
-     * @param dayTable полное расписание (на две недели)
+     * @param timeTable полное расписание (на две недели)
      * @return Возвращает количество всех пар
      */
-    private static int getLessonQuantity(String[][] dayTable) {
-        return (int) Arrays.stream(dayTable).mapToInt(EvaluationService::getLessonQuantity).sum();
+    private static int getLessonQuantity(String[][] timeTable) {
+        return Arrays.stream(timeTable).mapToInt(EvaluationService::getLessonQuantity).sum();
     }
 
     /**
@@ -267,7 +266,6 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     /**
-     * Возвращает количество свободных дней
      * @param timeTable полное расписание (на две недели)
      * @return количество свободных дней
      */
