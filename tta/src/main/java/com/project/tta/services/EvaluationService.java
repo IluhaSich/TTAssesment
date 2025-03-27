@@ -247,14 +247,14 @@ public class EvaluationService implements EvaluationInterface {
      * @param dayTable расписание на день
      * @return Возвращает количество пар в определенный день
      */
-    private static int getLessonQuantity (String[]dayTable){
+    private static int getLessonQuantity(String[] dayTable) {
         return (int) Arrays.stream(dayTable).filter(str -> !str.equals("nothing")).count();
     }
     /**
      * @param dayTable полное расписание (на две недели)
      * @return Возвращает количество всех пар
      */
-    private static int getLessonQuantity (String[][]dayTable){
+    private static int getLessonQuantity(String[][] dayTable) {
         return (int) Arrays.stream(dayTable).mapToInt(EvaluationService::getLessonQuantity).sum();
     }
 
@@ -262,7 +262,7 @@ public class EvaluationService implements EvaluationInterface {
      * @param dayTable расписание на день
      * @return Возвращает true если в этот день нет пар
      */
-    private static boolean dayIsFree (String[]  dayTable){
+    private static boolean dayIsFree(String[] dayTable) {
         return Arrays.stream(dayTable).allMatch(str -> str.equals("nothing"));
     }
 
@@ -271,7 +271,7 @@ public class EvaluationService implements EvaluationInterface {
      * @param timeTable полное расписание (на две недели)
      * @return количество свободных дней
      */
-    private static int getFreeDaysQuantity (String[][]timeTable){
+    private static int getFreeDaysQuantity(String[][] timeTable) {
         return (int) Arrays.stream(timeTable).filter(EvaluationService::dayIsFree).count();
     }
 }
