@@ -191,45 +191,45 @@ public class EvaluationService implements EvaluationInterface {
         return result;
     }
 
-        @Override
-        public int evaluateWeekendDistribution(String[][] table){
-            return 0;
-        }
+    @Override
+    public int evaluateWeekendDistribution(String[][] table){
+        return 0;
+    }
 
-        @Override
-        public int evaluateForHavingLongBreak(String[][] table){
-            int daysWithBreaks = 0;
+    @Override
+    public int evaluateForHavingLongBreak(String[][] table){
+        int daysWithBreaks = 0;
 
-            for (String[] day : table) {
-                if (dayIsFree(day)) continue;
+        for (String[] day : table) {
+            if (dayIsFree(day)) continue;
 
-                boolean hasLongBreak = false;
+            boolean hasLongBreak = false;
 
-                for (int i = 0; i < day.length - 1; i++) {
-                    String currentEnd = day[i].split("-")[1];
-                    String nextStart = day[i+1].split("-")[0];
+            for (int i = 0; i < day.length - 1; i++) {
+                String currentEnd = day[i].split("-")[1];
+                String nextStart = day[i+1].split("-")[0];
 
-                    int breakDuration = calculateBreakDuration(currentEnd, nextStart);
+                int breakDuration = calculateBreakDuration(currentEnd, nextStart);
 
-                    if (breakDuration > 60) {
-                        hasLongBreak = true;
-                        break;
-                    }
-                }
-
-                if (hasLongBreak) {
-                    daysWithBreaks++;
+                if (breakDuration > 60) {
+                    hasLongBreak = true;
+                    break;
                 }
             }
-            int result;
-            if (daysWithBreaks == 0) {
-                result = 2;
-            } else {
-                result = -2;
+
+            if (hasLongBreak) {
+                daysWithBreaks++;
             }
-            log.info("evaluate by weekend distribution and return {}", result);
-            return result;
         }
+        int result;
+        if (daysWithBreaks == 0) {
+            result = 2;
+        } else {
+            result = -2;
+        }
+        log.info("evaluate by weekend distribution and return {}", result);
+        return result;
+    }
 
     private static int calculateBreakDuration(String endTime, String startTime) {
         String[] endParts = endTime.split(":");
