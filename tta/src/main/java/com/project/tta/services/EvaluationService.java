@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 @Service
 public class EvaluationService implements EvaluationInterface {
@@ -35,19 +36,22 @@ public class EvaluationService implements EvaluationInterface {
 //        grade += evaluateLessonEndTime(table);
         grade += evaluateWeekendDistribution(table);
 //        grade += evaluateForHavingLongBreak(table);
+        log.info("return result from evaluation service : {}", grade);
         return grade;
     }
 
     @Override
     public int evaluateGaps(String[][] table) {
         int result = 0;
+        table = Arrays.stream(table)
+                .filter(Predicate.not(EvaluationService::dayIsFree)).toArray(String[][]::new);
         for (String[] dayTable : table) {
             int gap = 0;
             var dayTableBool
                     = Arrays.stream(dayTable).map(EvaluationService::isBlank).toArray(Boolean[]::new);
             List<Integer> dayTableInt = new ArrayList<>();
             for (int i = 0; i < dayTableBool.length; i++) {
-                if (dayTableBool[i]){
+                if (dayTableBool[i]) {
                     dayTableInt.add(i);
                 }
             }
@@ -55,7 +59,7 @@ public class EvaluationService implements EvaluationInterface {
                 gap = dayTableInt.get(i + 1) - dayTableInt.get(i) - 1;
             }
             if (gap == 0) {
-                result += 1;
+                result += 3;
             } else {
                 if (gap == 1) result -= 2;
                 if (gap > 1) result -= 5;
@@ -67,14 +71,14 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public int evaluateStudyDays(String[][] table) {
-        int studyDays = (int) Arrays.stream(table).map(EvaluationService::dayIsFree).count();
+        int studyDays = table.length - getFreeDaysQuantity(table);
         int result = switch (studyDays) {
-            case 6 -> -3;
-            case 5 -> 2;
-            case 4 -> 5;
+            case 12, 11 -> -3;
+            case 10, 9 -> 2;
+            case 8 -> 5;
             default -> 0;
         };
-        log.info("evaluate by study days {}", result);
+        log.info("evaluate by study days = {} and return {}", studyDays, result);
         return result;
     }
 
@@ -99,9 +103,6 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public int evaluateDailyLoad(String[][] table) {
-        if (table == null || table.length == 0) {
-            return 0;
-        }
         int totalLessons = getLessonQuantity(table);
         int result;
         if (totalLessons < 20) {
@@ -117,7 +118,23 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public int evaluateLessonStartTime(String[][] table) {
-        return 0;
+        int result = 0;
+        var dayStarts = Arrays.stream(table)
+                .filter(Predicate.not(EvaluationService::dayIsFree))
+                .map(arr -> Arrays.stream(arr)
+                        .takeWhile(Predicate.not(EvaluationService::isBlank))
+                        .count())
+                .toList();
+//        System.out.println(dayStarts);
+        if (dayStarts.stream().filter(t -> t == 0).count() >= 3) {
+            result -= 2;
+        } else {
+            result += 3;
+        }
+        if (dayStarts.stream().anyMatch(t -> t > 3)) result += 2;
+
+        log.info("evaluate by lesson start time and return {}", result);
+        return result;
     }
 
     @Override
@@ -157,7 +174,8 @@ public class EvaluationService implements EvaluationInterface {
     @Override
     public int evaluateWeekendDistribution(String[][] table) {
         int result = -2;
-        if (dayIsFree(table[5]) || dayIsFree(table[0])) result = 3;
+        if (dayIsFree(table[5]) || dayIsFree(table[6])
+                && dayIsFree(table[12]) || dayIsFree(table[7])) result = 3;
         for (int i = 1; i <= table.length - 2; i++) {
             if (dayIsFree(table[i])) {
                 if (dayIsFree(table[i + 1])) result = 3;
@@ -235,7 +253,7 @@ public class EvaluationService implements EvaluationInterface {
      * @return Возвращает true если в этот день нет пар
      */
     private static boolean dayIsFree(String[] dayTable) {
-        return Arrays.stream(dayTable).allMatch(EvaluationService::isBlank);
+        return Arrays.stream(dayTable).noneMatch(EvaluationService::isBlank);
     }
 
     /**
@@ -262,5 +280,7 @@ public class EvaluationService implements EvaluationInterface {
         EvaluationService eva = new EvaluationService(timeTableParser1);
         var t = timeTableParser1.getTimeTable("/timetable/189115");
         eva.evaluateTimeTable(t);
+//        eva.evaluateLessonStartTime(t);
+//        System.out.println(timeTableParser1.printTimeTable(t));
     }
 }

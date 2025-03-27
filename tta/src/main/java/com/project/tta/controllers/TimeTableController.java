@@ -34,7 +34,7 @@ public class TimeTableController {
         return groupLinkList;
     }
 
-    @GetMapping("/{link}")
+    @GetMapping("/links/{link}")
     public String getTimeTable(@PathVariable String link) {
         link = "/timetable/" + link;
         String result = "";
