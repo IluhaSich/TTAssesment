@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 @Service
@@ -131,6 +130,11 @@ public class EvaluationService implements EvaluationInterface {
         for (String[] day : table) {
             if (dayIsFree(day)) ;
         }
+        return 0;
+    }
+
+    @Override
+    public int evaluateLoadBalance(String[][] table) {
         return 0;
     }
 
