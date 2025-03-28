@@ -199,8 +199,11 @@ public class EvaluationService implements EvaluationInterface {
             if (hasBreakBetweenThirdAndFourthPair(day)) {
                 result -= 2;
             }
-            if (allPairsConsecutive(day)) {
+            else if (allPairsConsecutive(day)) {
                 result += 2;
+            }
+            else {
+                result += 0;
             }
         }
 
