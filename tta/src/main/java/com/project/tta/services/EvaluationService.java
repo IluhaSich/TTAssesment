@@ -229,18 +229,6 @@ public class EvaluationService implements EvaluationInterface {
         return endsAtThirdPair || startsFromFourthPair;
     }
 
-    private static int calculateBreakDuration(String endTime, String startTime) {
-        String[] endParts = endTime.split(":");
-        String[] startParts = startTime.split(":");
-
-        int endHour = Integer.parseInt(endParts[0]);
-        int endMin = Integer.parseInt(endParts[1]);
-        int startHour = Integer.parseInt(startParts[0]);
-        int startMin = Integer.parseInt(startParts[1]);
-
-        return (startHour * 60 + startMin) - (endHour * 60 + endMin);
-    }
-
     /**
      * @param dayTable расписание на день
      * @return Возвращает количество пар в определенный день
