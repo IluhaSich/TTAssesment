@@ -1,16 +1,11 @@
 package com.project.tta.services;
 
 import com.project.tta.services.interfaces.EvaluationInterface;
+import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
 
 @Service
 public class EvaluationService implements EvaluationInterface {
@@ -21,6 +16,92 @@ public class EvaluationService implements EvaluationInterface {
         this.timeTableParser = timeTableParser;
     }
 
+//
+//    public int evaluateTable(String[][] table) {
+//        if (table == null) {
+//            //TODO: throw new ...
+//            return -666;
+//        }
+//        int grade = 0;
+//        grade += evaluateByWindowsInDay(table);
+//        grade += evaluateByWindowsWeek(table);
+//
+//        return grade;
+//    }
+//
+//    public int evaluateByWindowsInDay(String[][] table) {
+//        // Оценивает количество пар в день и возвращает оценку
+//        // TODO: Вообще должен определять окна в расписании а не количество пар в день
+//        int grade = 0;
+//        int lessonQuantity = 0;
+//        for (String[] tableDay : table) {
+//            lessonQuantity = lessonQuantityPerDay(tableDay);
+//        }
+//        switch (lessonQuantity) {
+//            case 8: {
+//                grade -= 15; //8 пар = ад
+//                break;
+//            }
+//            case 7: { // 7 пар
+//                grade -= 10;
+//                break;
+//            }
+//            case 6, 5: { // 6,5 пар
+//                grade -= 7;
+//                break;
+//            }
+//            case 4, 3: { // 4, 3 пары
+//                grade += 2;
+//                break;
+//            }
+//            case 2: { // 2 пары
+//                grade -= 1;
+//                break;
+//            }
+//            case 1: { // 1 пара
+//                grade -= 3;
+//            }
+//        }
+//
+//        return grade;
+//    }
+//
+//    public int evaluateByWindowsWeek(String[][] table) {
+//        // Оценивает количество свободных дней и возвращает оценку
+//        boolean[] weekLiberty = new boolean[12];
+//        int grade = 0;
+//        for (int i = 0; i < table[0].length; i++) {
+//            weekLiberty[i] = dayIsFree(table[i]);
+//        }
+//        int libertyQuantity = 0;
+//        for (boolean dayLiberty : weekLiberty) { // Определяет количество свободных дней
+//            if (dayLiberty) libertyQuantity++;
+//        }
+//        switch (libertyQuantity) {
+//            case 11: { // 2 субботы
+//                grade -= 10;
+//                break;
+//            }
+//            case 10: { // 1 суббота
+//                grade -= 5;
+//                break;
+//            }
+//            case 8, 7: { // 4 дня учебы
+//                grade += 3;
+//                break;
+//            }
+//            case 6, 4, 3, 2, 1: { // до 6 пар в 2ух неделях
+//                grade += 10;
+//                break;
+//            }
+//        }
+//
+//        return grade;
+//    }
+//
+//
+
+
     @Override
     public int evaluateTimeTable(String[][] table) {
         if (table == null) {
@@ -30,75 +111,31 @@ public class EvaluationService implements EvaluationInterface {
         int grade = 0;
         grade += evaluateGaps(table);
         grade += evaluateStudyDays(table);
-        grade += evaluateLoadBalance(table);
         grade += evaluateDailyLoad(table);
         grade += evaluateLessonStartTime(table);
-//        grade += evaluateLessonEndTime(table);
+        grade += evaluateLessonEndTime(table);
         grade += evaluateWeekendDistribution(table);
-//        grade += evaluateForHavingLongBreak(table);
-        log.info("return result from evaluation service : {}", grade);
+        grade += evaluateForHavingLongBreak(table);
         return grade;
     }
 
     @Override
     public int evaluateGaps(String[][] table) {
-        int result = 0;
-        table = Arrays.stream(table)
-                .filter(Predicate.not(EvaluationService::dayIsFree)).toArray(String[][]::new);
-        for (String[] dayTable : table) {
-            int gap = 0;
-            var dayTableBool
-                    = Arrays.stream(dayTable).map(EvaluationService::isBlank).toArray(Boolean[]::new);
-            List<Integer> dayTableInt = new ArrayList<>();
-            for (int i = 0; i < dayTableBool.length; i++) {
-                if (dayTableBool[i]) {
-                    dayTableInt.add(i);
-                }
-            }
-            for (int i = 0; i < dayTableInt.size() - 1; i++) {
-                gap = dayTableInt.get(i + 1) - dayTableInt.get(i) - 1;
-            }
-            if (gap == 0) {
-                result += 3;
-            } else {
-                if (gap == 1) result -= 2;
-                if (gap > 1) result -= 5;
-            }
-        }
-        log.info("evaluate by gap and return {}", result);
-        return result;
+        return 0;
     }
 
     @Override
     public int evaluateStudyDays(String[][] table) {
-        int studyDays = table.length - getFreeDaysQuantity(table);
-        int result = switch (studyDays) {
-            case 12, 11 -> -3;
-            case 10, 9 -> 2;
-            case 8 -> 5;
-            default -> 0;
-        };
-        log.info("evaluate by study days = {} and return {}", studyDays, result);
-        return result;
+
+        for (String[] day : table) {
+            if (dayIsFree(day)) ;
+        }
+        return 0;
     }
 
     @Override
     public int evaluateLoadBalance(String[][] table) {
-        var quantityArr = Arrays.stream(table).map(EvaluationService::getLessonQuantity).toList();
-        int length = quantityArr.size();
-        double u = quantityArr.stream().mapToDouble(i -> i).sum() / length; // Среднее значение
-        double o = Math.sqrt(
-                quantityArr.stream().mapToDouble(i -> Math.pow(i - u, 2)).sum()
-                        / (length - 1)); // Стандартное отклонение
-        double cv = o / u; // Коэффициент вариации
-        int result = -5;
-        if (cv < 0.1) result = 5;
-        if (cv < 0.2) result = 2;
-        if (cv < 0.4) result = 0;
-        if (cv < 0.6) result = -3;
-        log.info("evaluate by load balance with CV = {} and return {}",
-                Math.floor(cv * 100) / 100, result);
-        return result;
+        return 0;
     }
 
     @Override
@@ -118,23 +155,7 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public int evaluateLessonStartTime(String[][] table) {
-        int result = 0;
-        var dayStarts = Arrays.stream(table)
-                .filter(Predicate.not(EvaluationService::dayIsFree))
-                .map(arr -> Arrays.stream(arr)
-                        .takeWhile(Predicate.not(EvaluationService::isBlank))
-                        .count())
-                .toList();
-//        System.out.println(dayStarts);
-        if (dayStarts.stream().filter(t -> t == 0).count() >= 3) {
-            result -= 2;
-        } else {
-            result += 3;
-        }
-        if (dayStarts.stream().anyMatch(t -> t > 3)) result += 2;
-
-        log.info("evaluate by lesson start time and return {}", result);
-        return result;
+        return 0;
     }
 
     @Override
@@ -145,24 +166,19 @@ public class EvaluationService implements EvaluationInterface {
         for (String[] day : table) {
             if (dayIsFree(day)) continue;
 
-            boolean hasLateClass = false;
-            boolean allEarly = true;
+            int lastPairIndex = findLastPairIndex(day);
 
-            for (String lesson : day) {
-                String endTime = lesson.split("-")[1];
-                int hour = Integer.parseInt(endTime.split(":")[0]);
-
-                if (hour >= 18) hasLateClass = true;
-                if (hour >= 16) allEarly = false;
+            if (lastPairIndex >= 5) {
+                lateDays++;
+            } else {
+                earlyDays++;
             }
-
-            if (hasLateClass) lateDays++;
-            if (allEarly) earlyDays++;
         }
+
         int result;
-        if (lateDays > 3) {
+        if (lateDays > 6) {
             result = -3;
-        } else if (earlyDays >= 3) {
+        } else if (earlyDays >= 6) {
             result = 3;
         } else {
             result = 0;
@@ -171,65 +187,58 @@ public class EvaluationService implements EvaluationInterface {
         return result;
     }
 
-    @Override
-    public int evaluateWeekendDistribution(String[][] table) {
-        int result = -2;
-        if (dayIsFree(table[5]) || dayIsFree(table[6])
-                && dayIsFree(table[12]) || dayIsFree(table[7])) result = 3;
-        for (int i = 1; i <= table.length - 2; i++) {
-            if (dayIsFree(table[i])) {
-                if (dayIsFree(table[i + 1])) result = 3;
+    private static int findLastPairIndex(String[] day) {
+        for (int i = day.length - 1; i >= 0; i--) {
+            if (!day[i].equals("nothing")) {
+                return i;
             }
         }
-        log.info("evaluate by weekend distribution and return {}", result);
-        return result;
+        return -1;
     }
 
     @Override
-    public int evaluateForHavingLongBreak(String[][] table) {
-        int daysWithBreaks = 0;
+    public int evaluateWeekendDistribution(String[][] table){
+        return 0;
+    }
+
+    @Override
+    public int evaluateForHavingLongBreak(String[][] table){
+        int result = 0;
 
         for (String[] day : table) {
             if (dayIsFree(day)) continue;
 
-            boolean hasLongBreak = false;
-
-            for (int i = 0; i < day.length - 1; i++) {
-                String currentEnd = day[i].split("-")[1];
-                String nextStart = day[i + 1].split("-")[0];
-
-                int breakDuration = calculateBreakDuration(currentEnd, nextStart);
-
-                if (breakDuration > 60) {
-                    hasLongBreak = true;
-                    break;
-                }
+            if (hasBreakBetweenThirdAndFourthPair(day)) {
+                result -= 2;
             }
-
-            if (hasLongBreak) {
-                daysWithBreaks++;
+            if (allPairsConsecutive(day)) {
+                result += 2;
             }
         }
-        int result;
-        if (daysWithBreaks == 0) {
-            result = 2;
-        } else {
-            result = -2;
-        }
+
         log.info("evaluate by having long break and return {}", result);
         return result;
     }
 
-    private static int calculateBreakDuration(String endTime, String startTime) {
-        String[] endParts = endTime.split(":");
-        String[] startParts = startTime.split(":");
+    private boolean hasBreakBetweenThirdAndFourthPair(String[] day) {
+        boolean hasThirdPair = !day[2].equals("nothing");
+        boolean hasFourthPair = !day[3].equals("nothing");
 
-        int endHour = Integer.parseInt(endParts[0]);
-        int endMin = Integer.parseInt(endParts[1]);
-        int startHour = Integer.parseInt(startParts[0]);
-        int startMin = Integer.parseInt(startParts[1]);
+        return hasThirdPair && hasFourthPair;
+    }
 
-        return (startHour * 60 + startMin) - (endHour * 60 + endMin);
+    private boolean allPairsConsecutive(String[] day) {
+        boolean endsAtThirdPair = day[3].equals("nothing") &&
+                day[4].equals("nothing") &&
+                day[5].equals("nothing") &&
+                day[6].equals("nothing") &&
+                day[7].equals("nothing");
+
+        boolean startsFromFourthPair = day[0].equals("nothing") &&
+                day[1].equals("nothing") &&
+                day[2].equals("nothing");
+
+        return endsAtThirdPair || startsFromFourthPair;
     }
 
     /**
@@ -237,15 +246,14 @@ public class EvaluationService implements EvaluationInterface {
      * @return Возвращает количество пар в определенный день
      */
     private static int getLessonQuantity(String[] dayTable) {
-        return (int) Arrays.stream(dayTable).filter(EvaluationService::isBlank).count();
+        return (int) Arrays.stream(dayTable).filter(str -> !str.equals("nothing")).count();
     }
-
     /**
-     * @param timeTable полное расписание (на две недели)
+     * @param dayTable полное расписание (на две недели)
      * @return Возвращает количество всех пар
      */
-    private static int getLessonQuantity(String[][] timeTable) {
-        return Arrays.stream(timeTable).mapToInt(EvaluationService::getLessonQuantity).sum();
+    private static int getLessonQuantity(String[][] dayTable) {
+        return (int) Arrays.stream(dayTable).mapToInt(EvaluationService::getLessonQuantity).sum();
     }
 
     /**
@@ -253,34 +261,15 @@ public class EvaluationService implements EvaluationInterface {
      * @return Возвращает true если в этот день нет пар
      */
     private static boolean dayIsFree(String[] dayTable) {
-        return Arrays.stream(dayTable).noneMatch(EvaluationService::isBlank);
+        return Arrays.stream(dayTable).allMatch(str -> str.equals("nothing"));
     }
 
     /**
+     * Возвращает количество свободных дней
      * @param timeTable полное расписание (на две недели)
      * @return количество свободных дней
      */
     private static int getFreeDaysQuantity(String[][] timeTable) {
         return (int) Arrays.stream(timeTable).filter(EvaluationService::dayIsFree).count();
-    }
-
-    /**
-     * Делает проверку: str != null && !str.isEmpty();
-     *
-     * @param str строка с информацией о паре
-     * @return true если строка не пуста
-     */
-
-    private static boolean isBlank(String str) {
-        return str != null && !str.isEmpty();
-    }
-
-    public static void main(String[] args) throws IOException {
-        TimeTableParser timeTableParser1 = new TimeTableParser();
-        EvaluationService eva = new EvaluationService(timeTableParser1);
-        var t = timeTableParser1.getTimeTable("/timetable/189115");
-        eva.evaluateTimeTable(t);
-//        eva.evaluateLessonStartTime(t);
-//        System.out.println(timeTableParser1.printTimeTable(t));
     }
 }
