@@ -136,9 +136,6 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public int evaluateDailyLoad(String[][] table) {
-        if (table == null || table.length == 0) {
-            return 0;
-        }
         int totalLessons = getLessonQuantity(table);
         int result;
         if (totalLessons < 20) {
@@ -165,30 +162,34 @@ public class EvaluationService implements EvaluationInterface {
         for (String[] day : table) {
             if (dayIsFree(day)) continue;
 
-            boolean hasLateClass = false;
-            boolean allEarly = true;
+            int lastPairIndex = findLastPairIndex(day);
 
-            for (String lesson : day) {
-                String endTime = lesson.split("-")[1];
-                int hour = Integer.parseInt(endTime.split(":")[0]);
-
-                if (hour >= 18) hasLateClass = true;
-                if (hour >= 16) allEarly = false;
+            if (lastPairIndex >= 5) {
+                lateDays++;
+            } else {
+                earlyDays++;
             }
-
-            if (hasLateClass) lateDays++;
-            if (allEarly) earlyDays++;
         }
+
         int result;
-        if (lateDays > 3) {
+        if (lateDays > 6) {
             result = -3;
-        } else if (earlyDays >= 3) {
+        } else if (earlyDays >= 6) {
             result = 3;
         } else {
             result = 0;
         }
-        log.info("evaluate by weekend distribution and return {}", result);
+        log.info("evaluate by lessonEndTime and return {}", result);
         return result;
+    }
+
+    private static int findLastPairIndex(String[] day) {
+        for (int i = day.length - 1; i >= 0; i--) {
+            if (!day[i].equals("nothing")) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -198,49 +199,42 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public int evaluateForHavingLongBreak(String[][] table){
-        int daysWithBreaks = 0;
+        int result = 0;
 
         for (String[] day : table) {
             if (dayIsFree(day)) continue;
 
-            boolean hasLongBreak = false;
-
-            for (int i = 0; i < day.length - 1; i++) {
-                String currentEnd = day[i].split("-")[1];
-                String nextStart = day[i+1].split("-")[0];
-
-                int breakDuration = calculateBreakDuration(currentEnd, nextStart);
-
-                if (breakDuration > 60) {
-                    hasLongBreak = true;
-                    break;
-                }
+            if (hasBreakBetweenThirdAndFourthPair(day)) {
+                result -= 2;
             }
-
-            if (hasLongBreak) {
-                daysWithBreaks++;
+            if (allPairsConsecutive(day)) {
+                result += 2;
             }
         }
-        int result;
-        if (daysWithBreaks == 0) {
-            result = 2;
-        } else {
-            result = -2;
-        }
-        log.info("evaluate by weekend distribution and return {}", result);
+
+        log.info("evaluate by having long break and return {}", result);
         return result;
     }
 
-    private static int calculateBreakDuration(String endTime, String startTime) {
-        String[] endParts = endTime.split(":");
-        String[] startParts = startTime.split(":");
+    private boolean hasBreakBetweenThirdAndFourthPair(String[] day) {
+        boolean hasThirdPair = !day[2].equals("nothing");
+        boolean hasFourthPair = !day[3].equals("nothing");
 
-        int endHour = Integer.parseInt(endParts[0]);
-        int endMin = Integer.parseInt(endParts[1]);
-        int startHour = Integer.parseInt(startParts[0]);
-        int startMin = Integer.parseInt(startParts[1]);
+        return hasThirdPair && hasFourthPair;
+    }
 
-        return (startHour * 60 + startMin) - (endHour * 60 + endMin);
+    private boolean allPairsConsecutive(String[] day) {
+        boolean endsAtThirdPair = day[3].equals("nothing") &&
+                day[4].equals("nothing") &&
+                day[5].equals("nothing") &&
+                day[6].equals("nothing") &&
+                day[7].equals("nothing");
+
+        boolean startsFromFourthPair = day[0].equals("nothing") &&
+                day[1].equals("nothing") &&
+                day[2].equals("nothing");
+
+        return endsAtThirdPair || startsFromFourthPair;
     }
 
     /**
