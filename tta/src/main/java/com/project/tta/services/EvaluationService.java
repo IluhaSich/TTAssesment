@@ -149,7 +149,7 @@ public class EvaluationService implements EvaluationInterface {
         } else {
             result = 3;
         }
-        log.info("evaluate by weekend distribution and return {}", result);
+        log.info("evaluate by daily load and return {}", result);
         return result;
     }
 
