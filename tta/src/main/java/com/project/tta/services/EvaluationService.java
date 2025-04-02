@@ -1,15 +1,13 @@
 package com.project.tta.services;
 
+import com.project.tta.models.TimeTableGrade;
 import com.project.tta.services.interfaces.EvaluationInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 @Service
@@ -22,26 +20,27 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public int evaluateTimeTable(String[][] table) {
+    public int evaluateTimeTable(String[][] table, boolean senior) {
         if (table == null) {
-            //TODO: throw new ...
-            return -666;
+            log.error("Time table in evaluateTimeTable method input is null. Throw RuntimeException");
+            throw new RuntimeException("time table is null");
         }
         int grade = 0;
-        grade += evaluateGaps(table);
-        grade += evaluateStudyDays(table);
-        grade += evaluateLoadBalance(table);
-        grade += evaluateDailyLoad(table);
-        grade += evaluateLessonStartTime(table);
-//        grade += evaluateLessonEndTime(table);
-        grade += evaluateWeekendDistribution(table);
+        var tt = new TimeTableGrade();
+        tt.addGrade(evaluateGaps(table));
+        tt.addGrade(evaluateStudyDays(table));
+        tt.addGrade(evaluateLoadBalance(table));
+        tt.addGrade(evaluateDailyLoad(table));
+        tt.addGrade(evaluateLessonStartTime(table));
+//        tt.addGrade(evaluateLessonEndTime(table));
+        tt.addGrade(evaluateWeekendDistribution(table));
 //        grade += evaluateForHavingLongBreak(table);
         log.info("return result from evaluation service : {}", grade);
         return grade;
     }
 
     @Override
-    public int evaluateGaps(String[][] table) {
+    public Map<String, Integer> evaluateGaps(String[][] table) {
         int result = 0;
         table = Arrays.stream(table)
                 .filter(Predicate.not(EvaluationService::dayIsFree)).toArray(String[][]::new);
@@ -70,7 +69,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public int evaluateStudyDays(String[][] table) {
+    public Map<String, Integer> evaluateStudyDays(String[][] table) {
         int studyDays = table.length - getFreeDaysQuantity(table);
         int result = switch (studyDays) {
             case 12, 11 -> -3;
@@ -83,7 +82,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public int evaluateLoadBalance(String[][] table) {
+    public Map<String, Integer> evaluateLoadBalance(String[][] table) {
         var quantityArr = Arrays.stream(table).map(EvaluationService::getLessonQuantity).toList();
         int length = quantityArr.size();
         double u = quantityArr.stream().mapToDouble(i -> i).sum() / length; // Среднее значение
@@ -102,7 +101,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public int evaluateDailyLoad(String[][] table) {
+    public Map<String, Integer> evaluateDailyLoad(String[][] table) {
         int totalLessons = getLessonQuantity(table);
         int result;
         if (totalLessons < 20) {
@@ -117,7 +116,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public int evaluateLessonStartTime(String[][] table) {
+    public Map<String, Integer> evaluateLessonStartTime(String[][] table) {
         int result = 0;
         var dayStarts = Arrays.stream(table)
                 .filter(Predicate.not(EvaluationService::dayIsFree))
@@ -138,7 +137,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public int evaluateLessonEndTime(String[][] table) {
+    public Map<String, Integer> evaluateLessonEndTime(String[][] table) {
         int lateDays = 0;
         int earlyDays = 0;
 
@@ -176,7 +175,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public int evaluateWeekendDistribution(String[][] table) {
+    public Map<String, Integer> evaluateWeekendDistribution(String[][] table) {
         int result = -2;
         if (dayIsFree(table[5]) || dayIsFree(table[6])
                 && dayIsFree(table[12]) || dayIsFree(table[7])) result = 3;
@@ -190,7 +189,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public int evaluateForHavingLongBreak(String[][] table) {
+    public Map<String, Integer> evaluateForHavingLongBreak(String[][] table) {
         int result = 0;
 
         for (String[] day : table) {
@@ -279,7 +278,9 @@ public class EvaluationService implements EvaluationInterface {
         TimeTableParser timeTableParser1 = new TimeTableParser();
         EvaluationService eva = new EvaluationService(timeTableParser1);
         var t = timeTableParser1.getTimeTable("/timetable/189115");
-        eva.evaluateTimeTable(t);
+        eva.evaluateTimeTable(t,false);
+        eva.evaluateTimeTable(t,true);
+
 //        eva.evaluateLessonStartTime(t);
 //        System.out.println(timeTableParser1.printTimeTable(t));
     }
