@@ -28,6 +28,9 @@ public class TimeTableGrade {
     }
 
     public void addGrade(Map<String,Integer> newGrade){
-        //TODO:
+        //TODO: доделать слегка. Добавить проверку на null .....
+        var info = newGrade.keySet().stream().findFirst().orElseThrow();
+        var value = newGrade.values().stream().findFirst().orElseThrow();
+        grade.put(info,value);
     }
 }
