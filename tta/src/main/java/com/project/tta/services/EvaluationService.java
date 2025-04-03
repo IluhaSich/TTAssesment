@@ -26,22 +26,24 @@ public class EvaluationService implements EvaluationInterface {
             throw new RuntimeException("time table is null");
         }
         int grade = 0;
-        var map = new HashMap<String,Integer>(9);
+        var map = new HashMap<String, Integer>(9);
         var tt = new TimeTableGrade();
-        tt.addGrade(evaluateGaps(table,map));
-        tt.addGrade(evaluateStudyDays(table));
-        tt.addGrade(evaluateLoadBalance(table));
-        tt.addGrade(evaluateDailyLoad(table));
-        tt.addGrade(evaluateLessonStartTime(table));
-//        tt.addGrade(evaluateLessonEndTime(table));
-        tt.addGrade(evaluateWeekendDistribution(table));
-//        grade += evaluateForHavingLongBreak(table);
+
+        tt.addGrade(evaluateGaps(table, map));
+        tt.addGrade(evaluateStudyDays(table, map));
+        tt.addGrade(evaluateLoadBalance(table, map));
+        tt.addGrade(evaluateDailyLoad(table, map));
+        tt.addGrade(evaluateLessonStartTime(table, senior, map));
+//        tt.addGrade(evaluateLessonEndTime(table,map));
+        tt.addGrade(evaluateWeekendDistribution(table, map));
+//        grade += evaluateForHavingLongBreak(table,map);
         log.info("return result from evaluation service : {}", grade);
         return grade;
     }
 
     @Override
     public Map<String, Integer> evaluateGaps(String[][] table, Map<String, Integer> params) {
+        int result = 0;
         table = Arrays.stream(table)
                 .filter(Predicate.not(EvaluationService::dayIsFree)).toArray(String[][]::new);
         for (String[] dayTable : table) {
@@ -60,65 +62,29 @@ public class EvaluationService implements EvaluationInterface {
             if (gap == 0) {
                 result += 3;
             } else {
-                if (gap == 1) result -= 2;
-                if (gap > 1) result -= 5;
+                if (gap == 1) result += 1;
             }
         }
         log.info("evaluate by gap and return {}", result);
-        return Map.of();
+        params.put("Evaluation by gaps", result);
+        return params;
     }
 
     @Override
     public Map<String, Integer> evaluateStudyDays(String[][] table, Map<String, Integer> params) {
-        return Map.of();
+        int studyDays = table.length - getFreeDaysQuantity(table);
+        int result = switch (studyDays) {
+            case 10 -> 3;
+            case 9,8 -> 5;
+            default -> 0;
+        };
+        log.info("evaluate by study days = {} and return {}", studyDays, result);
+        params.put("Evaluation by study days",result);
+        return params;
     }
 
     @Override
     public Map<String, Integer> evaluateLoadBalance(String[][] table, Map<String, Integer> params) {
-        return Map.of();
-    }
-
-    @Override
-    public Map<String, Integer> evaluateDailyLoad(String[][] table, Map<String, Integer> params) {
-        return Map.of();
-    }
-
-    @Override
-    public Map<String, Integer> evaluateLessonStartTime(String[][] table, boolean senior, Map<String, Integer> params) {
-        return Map.of();
-    }
-
-    @Override
-    public Map<String, Integer> evaluateLessonEndTime(String[][] table, boolean senior, Map<String, Integer> params) {
-        return Map.of();
-    }
-
-    @Override
-    public Map<String, Integer> evaluateWeekendDistribution(String[][] table, Map<String, Integer> params) {
-        return Map.of();
-    }
-
-    @Override
-    public Map<String, Integer> evaluateForHavingLongBreak(String[][] table, boolean senior, Map<String, Integer> params) {
-        return Map.of();
-    }
-
-
-    @Override
-    public Map<String, Integer> evaluateStudyDays(String[][] table) {
-        int studyDays = table.length - getFreeDaysQuantity(table);
-        int result = switch (studyDays) {
-            case 12, 11 -> -3;
-            case 10, 9 -> 2;
-            case 8 -> 5;
-            default -> 0;
-        };
-        log.info("evaluate by study days = {} and return {}", studyDays, result);
-        return result;
-    }
-
-    @Override
-    public Map<String, Integer> evaluateLoadBalance(String[][] table) {
         var quantityArr = Arrays.stream(table).map(EvaluationService::getLessonQuantity).toList();
         int length = quantityArr.size();
         double u = quantityArr.stream().mapToDouble(i -> i).sum() / length; // Среднее значение
@@ -128,31 +94,22 @@ public class EvaluationService implements EvaluationInterface {
         double cv = o / u; // Коэффициент вариации
         int result = -5;
         if (cv < 0.1) result = 5;
-        if (cv < 0.2) result = 2;
-        if (cv < 0.4) result = 0;
-        if (cv < 0.6) result = -3;
+        if (cv < 0.2) result = 3;
+        if (cv < 0.4) result = 2;
+        if (cv < 0.8) result = 1;
         log.info("evaluate by load balance with CV = {} and return {}",
                 Math.floor(cv * 100) / 100, result);
-        return result;
+        params.put("Evaluation by load balance", result);
+        return params;
     }
 
     @Override
-    public Map<String, Integer> evaluateDailyLoad(String[][] table) {
-        int totalLessons = getLessonQuantity(table);
-        int result;
-        if (totalLessons < 20) {
-            result = -3;
-        } else if (totalLessons > 30) {
-            result = -3;
-        } else {
-            result = 3;
-        }
-        log.info("evaluate by daily load and return {}", result);
-        return result;
+    public Map<String, Integer> evaluateDailyLoad(String[][] table, Map<String, Integer> params) {
+        return Map.of();
     }
 
     @Override
-    public Map<String, Integer> evaluateLessonStartTime(String[][] table) {
+    public Map<String, Integer> evaluateLessonStartTime(String[][] table, boolean senior, Map<String, Integer> params) {
         int result = 0;
         var dayStarts = Arrays.stream(table)
                 .filter(Predicate.not(EvaluationService::dayIsFree))
@@ -161,58 +118,41 @@ public class EvaluationService implements EvaluationInterface {
                         .count())
                 .toList();
 //        System.out.println(dayStarts);
-        if (dayStarts.stream().filter(t -> t == 0).count() >= 3) {
-            result -= 2;
-        } else {
-            result += 3;
-        }
-        if (dayStarts.stream().anyMatch(t -> t > 3)) result += 2;
-
-        log.info("evaluate by lesson start time and return {}", result);
-        return result;
-    }
-
-    @Override
-    public Map<String, Integer> evaluateLessonEndTime(String[][] table) {
-        int lateDays = 0;
-        int earlyDays = 0;
-
-        for (String[] day : table) {
-            if (dayIsFree(day)) continue;
-
-            int lastPairIndex = findLastPairIndex(day);
-
-            if (lastPairIndex >= 5) {
-                lateDays++;
+        if (senior) {
+            if (dayStarts.stream().filter(t -> t == 0).count() >= 3) {
+                result = 3;
             } else {
-                earlyDays++;
+                long q = dayStarts.stream().filter(t -> t == 0).count()
+                        + dayStarts.stream().filter(t -> t == 1).count();
+                if (q >= 3) {
+                    result = 2;
+                }
             }
-        }
-
-        int result;
-        if (lateDays > 6) {
-            result = -3;
-        } else if (earlyDays >= 6) {
-            result = 3;
         } else {
-            result = 0;
-        }
-        log.info("evaluate by lessonEndTime and return {}", result);
-        return result;
-    }
-
-    private static int findLastPairIndex(String[] day) {
-        for (int i = day.length - 1; i >= 0; i--) {
-            if (!day[i].equals("nothing")) {
-                return i;
+            if (dayStarts.stream().filter(t -> t >= 4).count() >= 3) {
+                result = 3;
+            } else {
+                long q = dayStarts.stream().filter(t -> t >= 4).count()
+                        + dayStarts.stream().filter(t -> t == 3).count();
+                if (q >= 3) {
+                    result = 2;
+                }
             }
         }
-        return -1;
+        params.put("Evaluation by lesson start time",result);
+        log.info("evaluate by lessons start time and return {}", result);
+        params.put("Evaluation by lessons start time",result);
+        return params;
     }
 
     @Override
-    public Map<String, Integer> evaluateWeekendDistribution(String[][] table) {
-        int result = -2;
+    public Map<String, Integer> evaluateLessonEndTime(String[][] table, boolean senior, Map<String, Integer> params) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Integer> evaluateWeekendDistribution(String[][] table, Map<String, Integer> params) {
+        int result = 1;
         if (dayIsFree(table[5]) || dayIsFree(table[6])
                 && dayIsFree(table[12]) || dayIsFree(table[7])) result = 3;
         for (int i = 1; i <= table.length - 2; i++) {
@@ -221,50 +161,13 @@ public class EvaluationService implements EvaluationInterface {
             }
         }
         log.info("evaluate by weekend distribution and return {}", result);
-        return result;
+        params.put("Evaluation by weekend distribution",result);
+        return params;
     }
 
     @Override
-    public Map<String, Integer> evaluateForHavingLongBreak(String[][] table) {
-        int result = 0;
-
-        for (String[] day : table) {
-            if (dayIsFree(day)) continue;
-
-            if (hasBreakBetweenThirdAndFourthPair(day)) {
-                result -= 2;
-            }
-            else if (allPairsConsecutive(day)) {
-                result += 2;
-            }
-            else {
-                result += 0;
-            }
-        }
-
-        log.info("evaluate by having long break and return {}", result);
-        return result;
-    }
-
-    private boolean hasBreakBetweenThirdAndFourthPair(String[] day) {
-        boolean hasThirdPair = !day[2].equals("nothing");
-        boolean hasFourthPair = !day[3].equals("nothing");
-
-        return hasThirdPair && hasFourthPair;
-    }
-
-    private boolean allPairsConsecutive(String[] day) {
-        boolean endsAtThirdPair = day[3].equals("nothing") &&
-                day[4].equals("nothing") &&
-                day[5].equals("nothing") &&
-                day[6].equals("nothing") &&
-                day[7].equals("nothing");
-
-        boolean startsFromFourthPair = day[0].equals("nothing") &&
-                day[1].equals("nothing") &&
-                day[2].equals("nothing");
-
-        return endsAtThirdPair || startsFromFourthPair;
+    public Map<String, Integer> evaluateForHavingLongBreak(String[][] table, boolean senior, Map<String, Integer> params) {
+        return Map.of();
     }
 
     /**
@@ -314,8 +217,8 @@ public class EvaluationService implements EvaluationInterface {
         TimeTableParser timeTableParser1 = new TimeTableParser();
         EvaluationService eva = new EvaluationService(timeTableParser1);
         var t = timeTableParser1.getTimeTable("/timetable/189115");
-        eva.evaluateTimeTable(t,false);
-        eva.evaluateTimeTable(t,true);
+        eva.evaluateTimeTable(t, false);
+        eva.evaluateTimeTable(t, true);
 
 //        eva.evaluateLessonStartTime(t);
 //        System.out.println(timeTableParser1.printTimeTable(t));
