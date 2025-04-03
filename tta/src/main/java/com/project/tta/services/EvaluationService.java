@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 public class EvaluationService implements EvaluationInterface {
@@ -159,7 +158,41 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public Map<String, Integer> evaluateLessonEndTime(String[][] table, boolean senior, Map<String, Integer> params) {
-        return Map.of();
+        int result = 0;
+        var dayEnds = Arrays.stream(table)
+                .filter(dayTable -> !dayIsFree(dayTable))
+                .map(dayTable -> {
+                    for (int i = dayTable.length - 1; i >= 0; i--) {
+                        if (isBlank(dayTable[i])) {
+                            return i;
+                        }
+                    } return -1; }).toList();
+//        System.out.println(dayEnds);
+        if (senior) {
+            if (dayEnds.stream().filter(index -> index >= 5).count() >= 3) {
+                result = 3;
+            } else {
+                long countFiveOrLater = dayEnds.stream().filter(index -> index >= 5).count()
+                        + dayEnds.stream().filter(index -> index == 4).count();
+                if (countFiveOrLater >= 3) {
+                    result = 2;
+                }
+            }
+        } else {
+            if (dayEnds.stream().filter(index -> index <= 2).count() >= 3) {
+                result = 3;
+            } else {
+                long countFiveOrEarlier = dayEnds.stream().filter(index -> index <= 2).count()
+                        + dayEnds.stream().filter(index -> index == 3).count()
+                        + dayEnds.stream().filter(index -> index == 4).count();
+                if (countFiveOrEarlier >= 3) {
+                    result = 2;
+                }
+            }
+        }
+        log.info("evaluate by lessons end time and return {}", result);
+        params.put("Evaluation by lessons end time", result);
+        return params;
     }
 
     @Override
@@ -249,7 +282,6 @@ public class EvaluationService implements EvaluationInterface {
         var t = timeTableParser1.getTimeTable("/timetable/189115");
         eva.evaluateTimeTable(t, false);
         eva.evaluateTimeTable(t, true);
-
 //        eva.evaluateLessonStartTime(t);
 //        System.out.println(timeTableParser1.printTimeTable(t));
     }
