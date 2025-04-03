@@ -26,7 +26,7 @@ public interface EvaluationInterface {
      * @param params дополнительные параметры для оценки
      * @return Карта с названием критерия и начисленными баллами
      */
-    Map<String, Integer> evaluateGaps(String[][] table, Map<String, Object> params);
+    Map<String, Integer> evaluateGaps(String[][] table, Map<String, Integer> params);
 
     /**
      * Оценивает расписание по количеству учебных дней в неделю.<br><br>
@@ -37,7 +37,7 @@ public interface EvaluationInterface {
      * @param params дополнительные параметры для оценки
      * @return Карта с названием критерия и начисленными баллами
      */
-    Map<String, Integer> evaluateStudyDays(String[][] table, Map<String, Object> params);
+    Map<String, Integer> evaluateStudyDays(String[][] table, Map<String, Integer> params);
 
     /**
      * Оценивает расписание по равномерности нагрузки по дням недели.<br><br>
@@ -50,7 +50,7 @@ public interface EvaluationInterface {
      * @param params дополнительные параметры для оценки
      * @return Карта с названием критерия и начисленными баллами
      */
-    Map<String, Integer> evaluateLoadBalance(String[][] table,  Map<String, Object> params);
+    Map<String, Integer> evaluateLoadBalance(String[][] table,  Map<String, Integer> params);
 
     /**
      * Оценивает расписание по общему числу пар за две недели.<br><br>
@@ -62,7 +62,7 @@ public interface EvaluationInterface {
      * @param params дополнительные параметры для оценки
      * @return Карта с названием критерия и начисленными баллами
      */
-    Map<String, Integer> evaluateDailyLoad(String[][] table, Map<String, Object> params);
+    Map<String, Integer> evaluateDailyLoad(String[][] table, Map<String, Integer> params);
 
     /**
      * Оценивает расписание по времени начала занятий.<br><br>
@@ -74,7 +74,7 @@ public interface EvaluationInterface {
      * @param params дополнительные параметры для оценки
      * @return Карта с названием критерия и начисленными баллами
      */
-    Map<String, Integer> evaluateLessonStartTime(String[][] table, boolean senior, Map<String, Object> params);
+    Map<String, Integer> evaluateLessonStartTime(String[][] table, boolean senior, Map<String, Integer> params);
 
     /**
      * Оценивает расписание по времени окончания занятий.<br><br>
@@ -86,7 +86,7 @@ public interface EvaluationInterface {
      * @param params дополнительные параметры для оценки
      * @return Карта с названием критерия и начисленными баллами
      */
-    Map<String, Integer> evaluateLessonEndTime(String[][] table, boolean senior, Map<String, Object> params);
+    Map<String, Integer> evaluateLessonEndTime(String[][] table, boolean senior, Map<String, Integer> params);
 
     /**
      * Оценивает расписание по распределению выходных.<br><br>
@@ -97,7 +97,7 @@ public interface EvaluationInterface {
      * @param params дополнительные параметры для оценки
      * @return Карта с названием критерия и начисленными баллами
      */
-    Map<String, Integer> evaluateWeekendDistribution(String[][] table, Map<String, Object> params);
+    Map<String, Integer> evaluateWeekendDistribution(String[][] table, Map<String, Integer> params);
 
     /**
      * Оценивает расписание по наличию большого перерыва между парами.<br><br>
@@ -109,5 +109,5 @@ public interface EvaluationInterface {
      * @param params дополнительные параметры для оценки
      * @return Карта с названием критерия и начисленными баллами
      */
-    Map<String, Integer> evaluateForHavingLongBreak(String[][] table, boolean senior, Map<String, Object> params);
+    Map<String, Integer> evaluateForHavingLongBreak(String[][] table, boolean senior, Map<String, Integer> params);
 }

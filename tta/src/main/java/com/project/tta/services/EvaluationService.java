@@ -26,8 +26,9 @@ public class EvaluationService implements EvaluationInterface {
             throw new RuntimeException("time table is null");
         }
         int grade = 0;
+        var map = new HashMap<String,Integer>(9);
         var tt = new TimeTableGrade();
-        tt.addGrade(evaluateGaps(table));
+        tt.addGrade(evaluateGaps(table,map));
         tt.addGrade(evaluateStudyDays(table));
         tt.addGrade(evaluateLoadBalance(table));
         tt.addGrade(evaluateDailyLoad(table));
@@ -40,8 +41,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public Map<String, Integer> evaluateGaps(String[][] table) {
-        int result = 0;
+    public Map<String, Integer> evaluateGaps(String[][] table, Map<String, Integer> params) {
         table = Arrays.stream(table)
                 .filter(Predicate.not(EvaluationService::dayIsFree)).toArray(String[][]::new);
         for (String[] dayTable : table) {
@@ -65,8 +65,44 @@ public class EvaluationService implements EvaluationInterface {
             }
         }
         log.info("evaluate by gap and return {}", result);
-        return result;
+        return Map.of();
     }
+
+    @Override
+    public Map<String, Integer> evaluateStudyDays(String[][] table, Map<String, Integer> params) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Integer> evaluateLoadBalance(String[][] table, Map<String, Integer> params) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Integer> evaluateDailyLoad(String[][] table, Map<String, Integer> params) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Integer> evaluateLessonStartTime(String[][] table, boolean senior, Map<String, Integer> params) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Integer> evaluateLessonEndTime(String[][] table, boolean senior, Map<String, Integer> params) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Integer> evaluateWeekendDistribution(String[][] table, Map<String, Integer> params) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Integer> evaluateForHavingLongBreak(String[][] table, boolean senior, Map<String, Integer> params) {
+        return Map.of();
+    }
+
 
     @Override
     public Map<String, Integer> evaluateStudyDays(String[][] table) {
