@@ -107,11 +107,6 @@ public class EvaluationService implements EvaluationInterface {
     @Override
     public Map<String, Integer> evaluateDailyLoad(String[][] table, Map<String, Integer> params) {
         int totalLessons = getLessonQuantity(table);
-        System.out.println(totalLessons);
-        var lessonsQuantity = Arrays.stream(table)
-                .filter(Predicate.not(EvaluationService::dayIsFree))
-                .map(EvaluationService::getLessonQuantity).toList();
-        System.out.println(lessonsQuantity);
 
         int result;
         if (totalLessons >= 20 && totalLessons <= 30) {
