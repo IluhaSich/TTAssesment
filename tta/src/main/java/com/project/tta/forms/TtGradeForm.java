@@ -1,10 +1,12 @@
 package com.project.tta.forms;
 
+import java.util.Map;
+
 public class TtGradeForm {
     private String name;
-    private String grade;
+    private Map<String, Integer> grade;
 
-    public TtGradeForm(String name, String grade) {
+    public TtGradeForm(String name, Map<String, Integer> grade) {
         this.name = name;
         this.grade = grade;
     }
@@ -17,11 +19,11 @@ public class TtGradeForm {
         this.name = name;
     }
 
-    public String getGrade() {
+    public Map<String, Integer> getGrade() {
         return grade;
     }
 
-    public void setGrade(String grade) {
+    public void setGrade(Map<String, Integer> grade) {
         this.grade = grade;
     }
 }
