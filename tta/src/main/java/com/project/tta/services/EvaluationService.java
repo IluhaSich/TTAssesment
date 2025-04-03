@@ -1,6 +1,6 @@
 package com.project.tta.services;
 
-import com.project.tta.models.TimeTableGrade;
+import com.project.tta.models.TtGrade;
 import com.project.tta.services.interfaces.EvaluationInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class EvaluationService implements EvaluationInterface {
         }
         int grade = 0;
         var map = new HashMap<String, Integer>(9);
-        var tt = new TimeTableGrade();
+        var tt = new TtGrade();
 
         tt.addGrade(evaluateGaps(table, map));
         tt.addGrade(evaluateStudyDays(table, map));
@@ -105,7 +105,19 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public Map<String, Integer> evaluateDailyLoad(String[][] table, Map<String, Integer> params) {
-        return Map.of();
+        int totalLessons = getLessonQuantity(table);
+
+        int result;
+        if (totalLessons >= 20 && totalLessons <= 30) {
+            result = 5;
+        } else if (totalLessons < 20) {
+            result = 3;
+        } else {
+            result = 2;
+        }
+        log.info("evaluate by daily load and return {}", result);
+        params.put("Evaluation by daily load",result);
+        return params;
     }
 
     @Override
@@ -139,7 +151,6 @@ public class EvaluationService implements EvaluationInterface {
                 }
             }
         }
-        params.put("Evaluation by lesson start time",result);
         log.info("evaluate by lessons start time and return {}", result);
         params.put("Evaluation by lessons start time",result);
         return params;
@@ -147,7 +158,41 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public Map<String, Integer> evaluateLessonEndTime(String[][] table, boolean senior, Map<String, Integer> params) {
-        return Map.of();
+        int result = 0;
+        var dayEnds = Arrays.stream(table)
+                .filter(dayTable -> !dayIsFree(dayTable))
+                .map(dayTable -> {
+                    for (int i = dayTable.length - 1; i >= 0; i--) {
+                        if (isBlank(dayTable[i])) {
+                            return i;
+                        }
+                    } return -1; }).toList();
+//        System.out.println(dayEnds);
+        if (senior) {
+            if (dayEnds.stream().filter(index -> index >= 5).count() >= 3) {
+                result = 3;
+            } else {
+                long countFiveOrLater = dayEnds.stream().filter(index -> index >= 5).count()
+                        + dayEnds.stream().filter(index -> index == 4).count();
+                if (countFiveOrLater >= 3) {
+                    result = 2;
+                }
+            }
+        } else {
+            if (dayEnds.stream().filter(index -> index <= 2).count() >= 3) {
+                result = 3;
+            } else {
+                long countFiveOrEarlier = dayEnds.stream().filter(index -> index <= 2).count()
+                        + dayEnds.stream().filter(index -> index == 3).count()
+                        + dayEnds.stream().filter(index -> index == 4).count();
+                if (countFiveOrEarlier >= 3) {
+                    result = 2;
+                }
+            }
+        }
+        log.info("evaluate by lessons end time and return {}", result);
+        params.put("Evaluation by lessons end time", result);
+        return params;
     }
 
     @Override
@@ -167,7 +212,25 @@ public class EvaluationService implements EvaluationInterface {
 
     @Override
     public Map<String, Integer> evaluateForHavingLongBreak(String[][] table, boolean senior, Map<String, Integer> params) {
-        return Map.of();
+        int result = 0;
+        for (String[] dayTable : table) {
+            if (dayIsFree(dayTable)) continue;
+
+            if (!senior && !isBlank(dayTable[2]) && !isBlank(dayTable[3])) {
+                result += 2;
+                break;
+            }
+            boolean endsByThird = Arrays.stream(dayTable).limit(3).noneMatch(EvaluationService::isBlank);
+            boolean startsFromFourth = Arrays.stream(dayTable).limit(3).allMatch(EvaluationService::isBlank)
+                    && Arrays.stream(dayTable).skip(3).anyMatch(str -> !isBlank(str));
+            if (endsByThird || startsFromFourth) {
+                result += 3;
+            }
+        }
+
+        log.info("evaluate by having long break and return {}", result);
+        params.put("Evaluation by having long break",result);
+        return params;
     }
 
     /**
