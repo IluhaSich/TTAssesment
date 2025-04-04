@@ -210,6 +210,8 @@ public class EvaluationService implements EvaluationInterface {
         return params;
     }
 
+
+    //TODO: Дает слишком много баллов!
     @Override
     public Map<String, Integer> evaluateForHavingLongBreak(String[][] table, boolean senior, Map<String, Integer> params) {
         int result = 0;
@@ -281,6 +283,7 @@ public class EvaluationService implements EvaluationInterface {
         EvaluationService eva = new EvaluationService(timeTableParser1);
         var t = timeTableParser1.getTimeTable("/timetable/189115");
         eva.evaluateTimeTable(t, false);
+        System.out.println();
         eva.evaluateTimeTable(t, true);
 //        eva.evaluateLessonStartTime(t);
 //        System.out.println(timeTableParser1.printTimeTable(t));
