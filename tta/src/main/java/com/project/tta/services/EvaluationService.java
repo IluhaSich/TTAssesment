@@ -38,6 +38,7 @@ public class EvaluationService implements EvaluationInterface {
         tt.addGrade(evaluateWeekendDistribution(table, map));
         tt.addGrade(evaluateForHavingLongBreak(table,senior,map));
         log.info("return result from evaluation service : {}", grade);
+        System.out.println(map);
         return grade;
     }
 
@@ -168,7 +169,7 @@ public class EvaluationService implements EvaluationInterface {
                         }
                     } return -1; }).toList();
 //        System.out.println(dayEnds);
-        if (senior) {
+        if (!senior) {
             if (dayEnds.stream().filter(index -> index >= 5).count() >= 3) {
                 result = 3;
             } else {
@@ -282,9 +283,12 @@ public class EvaluationService implements EvaluationInterface {
         TimeTableParser timeTableParser1 = new TimeTableParser();
         EvaluationService eva = new EvaluationService(timeTableParser1);
         var t = timeTableParser1.getTimeTable("/timetable/189115");
+//        System.out.println(timeTableParser1.printTimeTable(t));
         eva.evaluateTimeTable(t, false);
         System.out.println();
         eva.evaluateTimeTable(t, true);
+
+
 //        eva.evaluateLessonStartTime(t);
 //        System.out.println(timeTableParser1.printTimeTable(t));
     }
