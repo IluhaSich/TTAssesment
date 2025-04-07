@@ -44,4 +44,11 @@ public class CriterionEvaluation extends BaseEntity{
         this.score = score;
     }
 
+    @Override
+    public String toString() {
+        return "CriterionEvaluation{" +
+                "score=" + score +
+                ", criterionName='" + criterionName + '\'' +
+                '}';
+    }
 }

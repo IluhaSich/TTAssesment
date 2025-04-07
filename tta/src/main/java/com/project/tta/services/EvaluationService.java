@@ -1,44 +1,87 @@
 package com.project.tta.services;
 
+import com.project.tta.models.CriterionEvaluation;
+import com.project.tta.models.Group;
+import com.project.tta.models.TTEvaluation;
+import com.project.tta.repositories.CriterionEvaluationRepository;
+import com.project.tta.repositories.GroupRepository;
+import com.project.tta.repositories.TTEvaluationRepository;
 import com.project.tta.services.interfaces.EvaluationInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 
 @Service
 public class EvaluationService implements EvaluationInterface {
+    private final CriterionEvaluationRepository criterionEvaluationRepository;
+    private final GroupRepository groupRepository;
+    private final TTEvaluationRepository ttEvaluationRepository;
+
     private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
     private final TimeTableParser timeTableParser;
 
-    public EvaluationService(TimeTableParser timeTableParser) {
+    public EvaluationService(CriterionEvaluationRepository criterionEvaluationRepository, GroupRepository groupRepository, TTEvaluationRepository ttEvaluationRepository, TimeTableParser timeTableParser) {
+        this.criterionEvaluationRepository = criterionEvaluationRepository;
+        this.groupRepository = groupRepository;
+        this.ttEvaluationRepository = ttEvaluationRepository;
         this.timeTableParser = timeTableParser;
     }
 
     @Override
-    public int evaluateTimeTable(String[][] table, boolean senior) {
+    public Group evaluateTimeTable(TimeTable timeTable) {
+        //* @param senior false — младший курс, true — старший курс
+        boolean senior = timeTable.getCourse() > 2;
+        var table = timeTable.getTimeTable();
         if (table == null) {
             log.error("Time table in evaluateTimeTable method input is null. Throw RuntimeException");
             throw new RuntimeException("time table is null");
         }
-        int grade = 0;
         var map = new HashMap<String, Integer>(9);
-//        var tt = new TtGrade();
-//
-//        tt.addGrade(evaluateGaps(table, map));
-//        tt.addGrade(evaluateStudyDays(table, map));
-//        tt.addGrade(evaluateLoadBalance(table, map));
-//        tt.addGrade(evaluateDailyLoad(table, map));
-//        tt.addGrade(evaluateLessonStartTime(table, senior, map));
-//        tt.addGrade(evaluateLessonEndTime(table,senior,map));
-//        tt.addGrade(evaluateWeekendDistribution(table, map));
-//        tt.addGrade(evaluateForHavingLongBreak(table,senior,map));
-        log.info("return result from evaluation service : {}", grade);
-        System.out.println(map);
-        return grade;
+        evaluateGaps(table, map);
+        evaluateStudyDays(table, map);
+        evaluateLoadBalance(table, map);
+        evaluateDailyLoad(table, map);
+        evaluateLessonStartTime(table, senior, map);
+        evaluateLessonEndTime(table, senior, map);
+        evaluateWeekendDistribution(table, map);
+        evaluateForHavingLongBreak(table, senior, map);
+
+        var keys = map.keySet().toArray();
+        var values = map.values().toArray();
+        int sum = Arrays.stream(map.values().toArray(new Integer[0])).mapToInt(i -> i).sum();
+
+        var group = new Group(
+                timeTable.getName(),
+                timeTable.getLink(),
+                timeTable.getCourse(),
+                null);
+        var ttEvalluation = new TTEvaluation(
+                group,
+                sum,
+                LocalDateTime.now(),
+                null);
+        group.setTTEvaluation(ttEvalluation);
+
+        List<CriterionEvaluation> criterionEvaluation = new ArrayList<>();
+        for (int i = 0; i < values.length; i++) {
+            criterionEvaluation.add(
+                    new CriterionEvaluation(
+                            ttEvalluation,
+                            keys[i].toString(),
+                            (int) values[i]));
+        }
+        ttEvalluation.setCriterionEvaluationList(criterionEvaluation);
+        log.info("Sum of grades in {} is {}", timeTable.getName(), sum);
+        groupRepository.save(group);
+        ttEvaluationRepository.save(ttEvalluation);
+        criterionEvaluation.stream().map(criterionEvaluationRepository::save);
+        log.info("Group - {}, was fully save in db with all grades", timeTable.getName());
+        return group;
     }
 
     @Override
@@ -75,11 +118,11 @@ public class EvaluationService implements EvaluationInterface {
         int studyDays = table.length - getFreeDaysQuantity(table);
         int result = switch (studyDays) {
             case 10 -> 3;
-            case 9,8 -> 5;
+            case 9, 8 -> 5;
             default -> 0;
         };
         log.info("evaluate by study days = {} and return {}", studyDays, result);
-        params.put("Evaluation by study days",result);
+        params.put("Evaluation by study days", result);
         return params;
     }
 
@@ -116,7 +159,7 @@ public class EvaluationService implements EvaluationInterface {
             result = 2;
         }
         log.info("evaluate by daily load and return {}", result);
-        params.put("Evaluation by daily load",result);
+        params.put("Evaluation by daily load", result);
         return params;
     }
 
@@ -152,7 +195,7 @@ public class EvaluationService implements EvaluationInterface {
             }
         }
         log.info("evaluate by lessons start time and return {}", result);
-        params.put("Evaluation by lessons start time",result);
+        params.put("Evaluation by lessons start time", result);
         return params;
     }
 
@@ -166,7 +209,9 @@ public class EvaluationService implements EvaluationInterface {
                         if (isBlank(dayTable[i])) {
                             return i;
                         }
-                    } return -1; }).toList();
+                    }
+                    return -1;
+                }).toList();
 //        System.out.println(dayEnds);
         if (!senior) {
             if (dayEnds.stream().filter(index -> index >= 5).count() >= 3) {
@@ -206,7 +251,7 @@ public class EvaluationService implements EvaluationInterface {
             }
         }
         log.info("evaluate by weekend distribution and return {}", result);
-        params.put("Evaluation by weekend distribution",result);
+        params.put("Evaluation by weekend distribution", result);
         return params;
     }
 
@@ -231,7 +276,7 @@ public class EvaluationService implements EvaluationInterface {
         }
 
         log.info("evaluate by having long break and return {}", result);
-        params.put("Evaluation by having long break",result);
+        params.put("Evaluation by having long break", result);
         return params;
     }
 
@@ -278,16 +323,16 @@ public class EvaluationService implements EvaluationInterface {
         return str != null && !str.isEmpty();
     }
 
-    public static void main(String[] args) throws IOException {
-        TimeTableParser timeTableParser1 = new TimeTableParser();
-        EvaluationService eva = new EvaluationService(timeTableParser1);
-        var t = timeTableParser1.getTimeTable("/timetable/189115");
-//        System.out.println(timeTableParser1.printTimeTable(t));
-        eva.evaluateTimeTable(t, false);
-        System.out.println();
-        eva.evaluateTimeTable(t, true);
-
-//        eva.evaluateLessonStartTime(t);
-//        System.out.println(timeTableParser1.printTimeTable(t));
-    }
+//    public static void main(String[] args) throws IOException {
+//        TimeTableParser timeTableParser1 = new TimeTableParser();
+//        EvaluationService eva = new EvaluationService(timeTableParser1);
+//        var t = timeTableParser1.getTimeTable("/timetable/189115");
+////        System.out.println(timeTableParser1.printTimeTable(t));
+//        eva.evaluateTimeTable(t);
+//        System.out.println();
+//        eva.evaluateTimeTable(t);
+//
+////        eva.evaluateLessonStartTime(t);
+////        System.out.println(timeTableParser1.printTimeTable(t));
+//    }
 }

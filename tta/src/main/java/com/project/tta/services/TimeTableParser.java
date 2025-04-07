@@ -37,7 +37,17 @@ public class TimeTableParser {
 //        return links;
 //    }
 
-     public String[][] getTimeTable(String link) throws IOException {
+    public String getGroupName(Document document) throws IOException {
+        var h1 = document.selectFirst("h1").text().split(" ");
+        String name = h1[h1.length - 1];
+        return name;
+    }
+
+    public Integer getCourse(String groupName) throws IOException {
+        return Integer.parseInt(groupName.split("-")[1].substring(0,1));
+    }
+
+     public TimeTable getTimeTable(String link) throws IOException {
         int n = 12;
         int m = 8;
         Document doc = Jsoup.connect(HOME_PATH + link).get();
@@ -56,7 +66,9 @@ public class TimeTableParser {
                 timeTable[i + n / 2][j] = secondWeek[i][j];
             }
         }
-        return timeTable;
+        var name = getGroupName(doc);
+        var course = getCourse(name);
+        return new TimeTable(name,link,course,timeTable);
     }
 
     private String[][] getWeekTimetable(Document doc, String weekNum) throws IOException {
@@ -120,5 +132,10 @@ public class TimeTableParser {
             }
         }
         return stringBuilder.toString();
+    }
+    public static void main(String[] args) throws IOException {
+        String link = "/timetable/189115";
+        TimeTableParser ttp = new TimeTableParser();
+        System.out.println(ttp.getCourse("ВП-312"));
     }
 }

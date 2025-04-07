@@ -1,6 +1,8 @@
 package com.project.tta.controllers;
 
+import com.project.tta.models.Group;
 import com.project.tta.services.EvaluationService;
+import com.project.tta.services.TimeTable;
 import com.project.tta.services.TimeTableParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class TimeTableController {
@@ -37,7 +40,7 @@ public class TimeTableController {
         link = "/timetable/" + link;
         String result = "";
         try {
-            result = timeTableParser.printTimeTable(timeTableParser.getTimeTable(link));
+            result = timeTableParser.printTimeTable(timeTableParser.getTimeTable(link).getTimeTable());
         }catch (IOException e){
             log.error("IOException when getTimeTable with link = "+link + " :" + e);
         }
@@ -45,14 +48,21 @@ public class TimeTableController {
     }
 
     @GetMapping("/grade/{link}")
-    public int getGrade(@PathVariable String link) {
+    public String getGrade(@PathVariable String link) {
         link = "/timetable/" + link;
-        int result = 0;
+        Group result = null;
         try {
-            result += evaluationService.evaluateTimeTable(timeTableParser.getTimeTable(link),false);
+            var timeTable = timeTableParser.getTimeTable(link);
+            result = evaluationService.evaluateTimeTable(timeTable);
         }catch (IOException e){
             log.error("IOException when getGrade with link = "+link + " :" + e);
         }
-        return result;
+        return result.getTTEvaluation().getCriterionEvaluationList().stream()
+                .map(e -> String.format(
+                        "{\"%s\" with grade=%d}",
+                        e.getCriterionName(),
+                        e.getScore()
+                ))
+                .collect(Collectors.joining(", ", "[", "]"));
     }
 }
