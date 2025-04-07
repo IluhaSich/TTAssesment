@@ -1,13 +1,11 @@
 package com.project.tta.services;
 
-import com.project.tta.models.GroupLink;
 import org.springframework.stereotype.Service;
 
 import org.jsoup.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,28 +14,28 @@ import java.util.List;
 @Service
 public class TimeTableParser {
     static final String HOME_PATH = "https://www.miit.ru";
-    public List<GroupLink> getLinks() throws IOException {
-        List<GroupLink> links = new ArrayList<>();
-        Document doc = Jsoup.connect(HOME_PATH + "/timetable").get();
-        Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
-        for (Element group : groups) {
-            Element aAttrs = group.selectFirst("a");
-            if (!aAttrs.attr("href").equals("#")) {
-                links.add(new GroupLink(
-                        group.select("a").text(),
-                        aAttrs.attr("href")));
-            } else {
-                Elements sameNameGroups = group.getElementsByClass("dropdown-menu")
-                        .select("a");
-                for (Element g : sameNameGroups) {
-                    links.add(new GroupLink(
-                            g.text()
-                            , g.attr("href")));
-                }
-            }
-        }
-        return links;
-    }
+//    public List<GroupLink> getLinks() throws IOException {
+//        List<GroupLink> links = new ArrayList<>();
+//        Document doc = Jsoup.connect(HOME_PATH + "/timetable").get();
+//        Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
+//        for (Element group : groups) {
+//            Element aAttrs = group.selectFirst("a");
+//            if (!aAttrs.attr("href").equals("#")) {
+//                links.add(new GroupLink(
+//                        group.select("a").text(),
+//                        aAttrs.attr("href")));
+//            } else {
+//                Elements sameNameGroups = group.getElementsByClass("dropdown-menu")
+//                        .select("a");
+//                for (Element g : sameNameGroups) {
+//                    links.add(new GroupLink(
+//                            g.text()
+//                            , g.attr("href")));
+//                }
+//            }
+//        }
+//        return links;
+//    }
 
      public String[][] getTimeTable(String link) throws IOException {
         int n = 12;

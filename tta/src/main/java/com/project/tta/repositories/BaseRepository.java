@@ -14,4 +14,6 @@ public interface BaseRepository<T, ID> extends Repository<T, ID> {
     List<T> findAll();
 
     Optional<T> findById(Long entity_id);
+
+    boolean existsById(Long id);
 }

@@ -1,6 +1,5 @@
 package com.project.tta.services;
 
-import com.project.tta.models.TtGrade;
 import com.project.tta.services.interfaces.EvaluationInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,16 +26,16 @@ public class EvaluationService implements EvaluationInterface {
         }
         int grade = 0;
         var map = new HashMap<String, Integer>(9);
-        var tt = new TtGrade();
-
-        tt.addGrade(evaluateGaps(table, map));
-        tt.addGrade(evaluateStudyDays(table, map));
-        tt.addGrade(evaluateLoadBalance(table, map));
-        tt.addGrade(evaluateDailyLoad(table, map));
-        tt.addGrade(evaluateLessonStartTime(table, senior, map));
-        tt.addGrade(evaluateLessonEndTime(table,senior,map));
-        tt.addGrade(evaluateWeekendDistribution(table, map));
-        tt.addGrade(evaluateForHavingLongBreak(table,senior,map));
+//        var tt = new TtGrade();
+//
+//        tt.addGrade(evaluateGaps(table, map));
+//        tt.addGrade(evaluateStudyDays(table, map));
+//        tt.addGrade(evaluateLoadBalance(table, map));
+//        tt.addGrade(evaluateDailyLoad(table, map));
+//        tt.addGrade(evaluateLessonStartTime(table, senior, map));
+//        tt.addGrade(evaluateLessonEndTime(table,senior,map));
+//        tt.addGrade(evaluateWeekendDistribution(table, map));
+//        tt.addGrade(evaluateForHavingLongBreak(table,senior,map));
         log.info("return result from evaluation service : {}", grade);
         System.out.println(map);
         return grade;
@@ -287,7 +286,6 @@ public class EvaluationService implements EvaluationInterface {
         eva.evaluateTimeTable(t, false);
         System.out.println();
         eva.evaluateTimeTable(t, true);
-
 
 //        eva.evaluateLessonStartTime(t);
 //        System.out.println(timeTableParser1.printTimeTable(t));

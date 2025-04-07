@@ -1,13 +1,11 @@
 package com.project.tta.controllers;
 
-import com.project.tta.models.GroupLink;
 import com.project.tta.services.EvaluationService;
 import com.project.tta.services.TimeTableParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -23,16 +21,16 @@ public class TimeTableController {
         this.timeTableParser = timeTableParser;
         this.evaluationService = evaluationService;
     }
-    @GetMapping("/links")
-    public List<GroupLink> getLinks() {
-        List<GroupLink> groupLinkList = null;
-        try {
-            groupLinkList = timeTableParser.getLinks();
-        } catch (IOException e) {
-            log.error("IOException when getLinks:" + e);
-        }
-        return groupLinkList;
-    }
+//    @GetMapping("/links")
+//    public List<GroupLink> getLinks() {
+//        List<GroupLink> groupLinkList = null;
+//        try {
+//            groupLinkList = timeTableParser.getLinks();
+//        } catch (IOException e) {
+//            log.error("IOException when getLinks:" + e);
+//        }
+//        return groupLinkList;
+//    }
 
     @GetMapping("/links/{link}")
     public String getTimeTable(@PathVariable String link) {
