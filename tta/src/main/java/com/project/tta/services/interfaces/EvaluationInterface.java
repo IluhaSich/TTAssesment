@@ -11,10 +11,9 @@ public interface EvaluationInterface {
      * В зависимости от курса (младший/старший) применяются разные критерии оценки.<br>
      *
      * @param table массив с расписанием
-     * @param senior false — младший курс, true — старший курс
      * @return Итоговая оценка по всем критериям
      */
-    int evaluateTimeTable(String[][] table, boolean senior);
+    int evaluateTimeTable(String[][] table);
 
     /**
      * Оценивает расписание по наличию окон.<br><br>
