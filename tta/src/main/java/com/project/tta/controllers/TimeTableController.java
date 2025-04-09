@@ -49,7 +49,7 @@ public class TimeTableController {
         link = "/timetable/" + link;
         int result = 0;
         try {
-            result += evaluationService.evaluateTimeTable(timeTableParser.getTimeTable(link),false);
+            result += evaluationService.evaluateTimeTable(timeTableParser.getTimeTable(link));
         }catch (IOException e){
             log.error("IOException when getGrade with link = "+link + " :" + e);
         }

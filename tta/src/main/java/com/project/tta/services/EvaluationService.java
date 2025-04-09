@@ -19,23 +19,23 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
-    public int evaluateTimeTable(String[][] table, boolean senior) {
+    public int evaluateTimeTable(String[][] table) {
         if (table == null) {
             log.error("Time table in evaluateTimeTable method input is null. Throw RuntimeException");
             throw new RuntimeException("time table is null");
         }
         int grade = 0;
         var map = new HashMap<String, Integer>(9);
-//        var tt = new TtGrade();
-//
-//        tt.addGrade(evaluateGaps(table, map));
-//        tt.addGrade(evaluateStudyDays(table, map));
-//        tt.addGrade(evaluateLoadBalance(table, map));
-//        tt.addGrade(evaluateDailyLoad(table, map));
-//        tt.addGrade(evaluateLessonStartTime(table, senior, map));
-//        tt.addGrade(evaluateLessonEndTime(table,senior,map));
-//        tt.addGrade(evaluateWeekendDistribution(table, map));
-//        tt.addGrade(evaluateForHavingLongBreak(table,senior,map));
+        var tt = new TtGrade();
+
+        tt.addGrade(evaluateGaps(table, map));
+        tt.addGrade(evaluateStudyDays(table, map));
+        tt.addGrade(evaluateLoadBalance(table, map));
+        tt.addGrade(evaluateDailyLoad(table, map));
+        tt.addGrade(evaluateLessonStartTime(table, senior, map));
+        tt.addGrade(evaluateLessonEndTime(table,senior,map));
+        tt.addGrade(evaluateWeekendDistribution(table, map));
+        tt.addGrade(evaluateForHavingLongBreak(table,senior,map));
         log.info("return result from evaluation service : {}", grade);
         System.out.println(map);
         return grade;
@@ -168,7 +168,7 @@ public class EvaluationService implements EvaluationInterface {
                         }
                     } return -1; }).toList();
 //        System.out.println(dayEnds);
-        if (!senior) {
+        if (senior) {
             if (dayEnds.stream().filter(index -> index >= 5).count() >= 3) {
                 result = 3;
             } else {
@@ -211,25 +211,27 @@ public class EvaluationService implements EvaluationInterface {
     }
 
 
-    //TODO: Дает слишком много баллов!
     @Override
     public Map<String, Integer> evaluateForHavingLongBreak(String[][] table, boolean senior, Map<String, Integer> params) {
         int result = 0;
+        int count = 0;
         for (String[] dayTable : table) {
             if (dayIsFree(dayTable)) continue;
 
             if (!senior && !isBlank(dayTable[2]) && !isBlank(dayTable[3])) {
-                result += 2;
+                result = 2;
                 break;
             }
             boolean endsByThird = Arrays.stream(dayTable).limit(3).noneMatch(EvaluationService::isBlank);
             boolean startsFromFourth = Arrays.stream(dayTable).limit(3).allMatch(EvaluationService::isBlank)
                     && Arrays.stream(dayTable).skip(3).anyMatch(str -> !isBlank(str));
             if (endsByThird || startsFromFourth) {
-                result += 3;
+                count += 1;
             }
         }
-
+        if (count >= 3) {
+            result = 3;
+        }
         log.info("evaluate by having long break and return {}", result);
         params.put("Evaluation by having long break",result);
         return params;
@@ -283,9 +285,10 @@ public class EvaluationService implements EvaluationInterface {
         EvaluationService eva = new EvaluationService(timeTableParser1);
         var t = timeTableParser1.getTimeTable("/timetable/189115");
 //        System.out.println(timeTableParser1.printTimeTable(t));
-        eva.evaluateTimeTable(t, false);
+        eva.evaluateTimeTable(t);
         System.out.println();
-        eva.evaluateTimeTable(t, true);
+//        eva.evaluateTimeTable(t);
+
 
 //        eva.evaluateLessonStartTime(t);
 //        System.out.println(timeTableParser1.printTimeTable(t));
