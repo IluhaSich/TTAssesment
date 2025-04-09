@@ -2,6 +2,7 @@ package com.project.tta.controllers;
 
 import com.project.tta.models.Group;
 import com.project.tta.services.EvaluationService;
+import com.project.tta.services.TTAService;
 import com.project.tta.services.TimeTable;
 import com.project.tta.services.TimeTableParser;
 import org.slf4j.Logger;
@@ -19,10 +20,12 @@ public class TimeTableController {
     private static final Logger log = LoggerFactory.getLogger(TimeTableController.class);
     private final TimeTableParser timeTableParser;
     private final EvaluationService evaluationService;
+    private final TTAService ttaService;
 
-    public TimeTableController(TimeTableParser timeTableParser, EvaluationService evaluationService) {
+    public TimeTableController(TimeTableParser timeTableParser, EvaluationService evaluationService, TTAService ttaService) {
         this.timeTableParser = timeTableParser;
         this.evaluationService = evaluationService;
+        this.ttaService = ttaService;
     }
 //    @GetMapping("/links")
 //    public List<GroupLink> getLinks() {
@@ -47,9 +50,19 @@ public class TimeTableController {
         return result;
     }
 
+    //TODO: сделать добавление по названию группы (второй контроллер)
     @GetMapping("/grade/{link}")
     public String getGrade(@PathVariable String link) {
         link = "/timetable/" + link;
+        if (ttaService.existByLink(link)){
+            return ttaService.findByLink(link).getTTEvaluation().getCriterionEvaluationList().stream()
+                    .map(e -> String.format(
+                            "{\"%s\" with grade=%d}",
+                            e.getCriterionName(),
+                            e.getScore()
+                    ))
+                    .collect(Collectors.joining(", ", "[", "]"));
+        }
         Group result = null;
         try {
             var timeTable = timeTableParser.getTimeTable(link);

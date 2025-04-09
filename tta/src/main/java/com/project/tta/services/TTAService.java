@@ -22,11 +22,24 @@ public class TTAService {
         this.criterionEvaluationRepository = criterionEvaluationRepository;
     }
 
-
+    // TODO: добавить еще методов save для сохранения полной цепочки моделей (нужно ли?)
     public Group save(Group group) {
         groupRepository.save(group);
         return group;
     }
-    // TODO: добавить еще методов save для сохранения полной цепочки моделей (нужно ли?)
+
+    public boolean existByName(String name){
+        return groupRepository.existsByName(name);
+    }
+
+    public boolean existByLink(String link){
+        return groupRepository.existsByLink(link);
+    }
+
+
+    public Group findByLink(String link) {
+        return groupRepository.findByLink(link).orElseThrow();
+    }
 
 }
+
