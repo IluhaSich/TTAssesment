@@ -1,11 +1,9 @@
 package com.project.tta.services;
 
-import com.project.tta.dtos.TtGradeDto;
 import com.project.tta.models.Group;
 import com.project.tta.repositories.CriterionEvaluationRepository;
 import com.project.tta.repositories.GroupRepository;
 import com.project.tta.repositories.TTEvaluationRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,11 +20,27 @@ public class TTAService {
         this.criterionEvaluationRepository = criterionEvaluationRepository;
     }
 
-
+    // TODO: добавить еще методов save для сохранения полной цепочки моделей (нужно ли?)
     public Group save(Group group) {
         groupRepository.save(group);
         return group;
     }
-    // TODO: добавить еще методов save для сохранения полной цепочки моделей (нужно ли?)
+
+    public List<Group> findAll(){
+        return groupRepository.findAll();
+    }
+
+    public boolean existByName(String name){
+        return groupRepository.existsByName(name);
+    }
+
+    public boolean existByLink(String link){
+        return groupRepository.existsByLink(link);
+    }
+
+    public Group findByLink(String link) {
+        return groupRepository.findByLink(link).orElseThrow();
+    }
 
 }
+

@@ -35,7 +35,7 @@ public class TTEvaluation extends BaseEntity {
         return localDateTime;
     }
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "TTEvaluation", cascade = CascadeType.ALL)
     public List<CriterionEvaluation> getCriterionEvaluationList() {
         return criterionEvaluationList;
     }

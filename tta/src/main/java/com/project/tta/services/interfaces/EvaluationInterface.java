@@ -3,6 +3,9 @@ package com.project.tta.services.interfaces;
 /**
  * Интерфейс оценки расписания по различным критериям.
  */
+import com.project.tta.models.Group;
+import com.project.tta.services.TimeTable;
+
 import java.util.Map;
 
 public interface EvaluationInterface {
@@ -10,10 +13,10 @@ public interface EvaluationInterface {
      * Оценивает расписание по всем критериям.<br><br>
      * В зависимости от курса (младший/старший) применяются разные критерии оценки.<br>
      *
-     * @param table массив с расписанием
-     * @return Итоговая оценка по всем критериям
+     * @param timeTable массив с расписанием
+     * @return Объeкт класс Group
      */
-    int evaluateTimeTable(String[][] table);
+    Group evaluateTimeTable(TimeTable timeTable);
 
     /**
      * Оценивает расписание по наличию окон.<br><br>
