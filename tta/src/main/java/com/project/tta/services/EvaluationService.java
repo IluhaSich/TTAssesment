@@ -135,7 +135,7 @@ public class EvaluationService implements EvaluationInterface {
                 quantityArr.stream().mapToDouble(i -> Math.pow(i - u, 2)).sum()
                         / (length - 1)); // Стандартное отклонение
         double cv = o / u; // Коэффициент вариации
-        int result = -5;
+        int result = 0;
         if (cv < 0.1) result = 5;
         if (cv < 0.2) result = 3;
         if (cv < 0.4) result = 2;

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-100" xmlns:th="http://www.thymeleaf.org">
+<!--<head th:replace="~{fragments/head}"></head>-->
+<body class="d-flex flex-column h-100">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+<!--<div th:replace="~{fragments/navbar}">Navbar</div>-->
+<main class="flex-shrink-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="jumbotron text-center rounded col-md-8 align-self-center pt-5">
+<!--                <h2 class="text-center text-dark mt-5">Поиск чая</h2>-->
+<!--                <form th:action="@{/group/}"-->
+<!--                      th:method="get"-->
+<!--                      th:object="${form}"-->
+<!--                      class="mb-3">-->
+<!--                    <div class="input-group">-->
+<!--                        <input type="text"-->
+<!--                               th:field="*{name}"-->
+<!--                               class="form-control"-->
+<!--                               placeholder="Поиск по названию"/>-->
+<!--                        <input type="text"-->
+<!--                               th:field="*{sort}"-->
+<!--                               class="form-control"-->
+<!--                               placeholder="Поиск по сорту"/>-->
+<!--                        <input type="number"-->
+<!--                               th:field="*{startCost}"-->
+<!--                               class="form-control"-->
+<!--                               placeholder="min price"-->
+<!--                               min="0" max="9999"/>-->
+<!--                        <input type="number"-->
+<!--                               th:field="*{endCost}"-->
+<!--                               class="form-control"-->
+<!--                               placeholder="max price"-->
+<!--                               min="0" max="9999"/>-->
+<!--                        <input type="hidden" th:field="*{page}" />-->
+<!--                        <input type="hidden" th:field="*{size}" />-->
+<!--                        <button class="btn btn-primary" type="submit">Поиск</button>-->
+<!--                    </div>-->
+<!--                </form>-->
+
+                <div th:if="${not #lists.isEmpty(model.groupViewModelList)}">
+
+                    <div th:each="group : ${model.groupViewModelList}"
+                         class="d-flex flex-column bg-text mb-3 p-3 border rounded">
+                        <!--                        <img th:src="${group.image}">-->
+                        <!--                        <img th:src="orange-cookie.webp">-->
+                        <a th:href="@{/grades/{link}(link=${group.link})}" th:text="${group.name}"></a>
+<!--                        <div class="mt-2">-->
+<!--                            <a class="btn btn-secondary"-->
+<!--                               th:href="@{/group/{id}(id=${group.id})}">Подробнее</a>-->
+<!--                        </div>-->
+                    </div>
+
+<!--                    <nav th:if="${model.totalPages > 1}" aria-label="Page navigation">-->
+<!--                        <ul class="pagination justify-content-center">-->
+<!--                            <li class="page-item"-->
+<!--                                th:each="pageNumber : ${#numbers.sequence(1, model.totalPages)}"-->
+<!--                                th:classappend="${pageNumber == form.page} ? 'active'">-->
+<!--                                <a class="page-link"-->
+<!--                                   th:href="@{/group/(-->
+<!--                                   page=${pageNumber},-->
+<!--                                   size=${form.size},-->
+<!--                                   name=${form.name},-->
+<!--                                   sort=${form.sort},-->
+<!--                                   startCost=${form.startCost},-->
+<!--                                   endCost=${form.endCost})}"-->
+<!--                                   th:text="${pageNumber}">1</a>-->
+<!--                            </li>-->
+<!--                        </ul>-->
+<!--                    </nav>-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+<!--<footer th:replace="~{fragments/footer}"/>-->
+</body>
+</html>

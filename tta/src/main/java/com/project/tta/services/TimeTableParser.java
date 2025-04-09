@@ -50,7 +50,7 @@ public class TimeTableParser {
      public TimeTable getTimeTable(String link) throws IOException {
         int n = 12;
         int m = 8;
-        Document doc = Jsoup.connect(HOME_PATH + link).get();
+        Document doc = Jsoup.connect(HOME_PATH + "/timetable/" + link).get();
         String[][] timeTable = new String[n][m];
         String[][] firstWeek = getWeekTimetable(doc, "#week-1");
         String[][] secondWeek = getWeekTimetable(doc, "#week-2");
