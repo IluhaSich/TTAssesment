@@ -47,10 +47,20 @@ public class TimeTableParser {
         return Integer.parseInt(groupName.split("-")[1].substring(0,1));
     }
 
+    public boolean isEmpty(Document document){
+        var a = document.selectFirst("section").text().contains("Информация о расписании отсутствует");
+        System.out.println(a);
+
+        return false;
+    }
+
      public TimeTable getTimeTable(String link) throws IOException {
         int n = 12;
         int m = 8;
         Document doc = Jsoup.connect(HOME_PATH + "/timetable/" + link).get();
+        if (isEmpty(doc)){
+            throw new RuntimeException("HTML page is not containing time table");
+        }
         String[][] timeTable = new String[n][m];
         String[][] firstWeek = getWeekTimetable(doc, "#week-1");
         String[][] secondWeek = getWeekTimetable(doc, "#week-2");
@@ -134,8 +144,11 @@ public class TimeTableParser {
         return stringBuilder.toString();
     }
     public static void main(String[] args) throws IOException {
-        String link = "/timetable/189115";
+//        String link = "/timetable/189115";
+        String link = "/timetable/189119";
         TimeTableParser ttp = new TimeTableParser();
-        System.out.println(ttp.getCourse("ВП-312"));
+        ttp.isEmpty(Jsoup.connect(HOME_PATH + link).get());
     }
 }
+////https://www.miit.ru/timetable/189119 empty tt
+
