@@ -1,5 +1,6 @@
 package com.project.tta.services;
 
+import com.project.tta.models.CriterionEvaluation;
 import com.project.tta.models.Group;
 import com.project.tta.repositories.CriterionEvaluationRepository;
 import com.project.tta.repositories.GroupRepository;
@@ -28,6 +29,20 @@ public class TTAService {
 
     public List<Group> findAll(){
         return groupRepository.findAll();
+    }
+
+    public List<Group> findGroupsByFilter(String groupNameFilter) {
+        if (groupNameFilter == null || groupNameFilter.trim().isEmpty()) {
+            return groupRepository.findAll();
+        }
+        return groupRepository.findByFilter(groupNameFilter.toLowerCase());
+    }
+
+    public List<CriterionEvaluation> findCriteriaByFilter(String criterionNameFilter) {
+        if (criterionNameFilter == null || criterionNameFilter.trim().isEmpty()) {
+            return criterionEvaluationRepository.findAll();
+        }
+        return criterionEvaluationRepository.findByFilter(criterionNameFilter.toLowerCase());
     }
 
     public boolean existByName(String name){

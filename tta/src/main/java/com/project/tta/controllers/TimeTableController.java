@@ -1,20 +1,25 @@
 package com.project.tta.controllers;
 
+import com.project.tta.models.CriterionEvaluation;
 import com.project.tta.models.Group;
 import com.project.tta.services.EvaluationService;
 import com.project.tta.services.TTAService;
 import com.project.tta.services.TimeTableParser;
 import com.project.tta.viewModels.AllGradesViewModel;
+import com.project.tta.viewModels.AllRecordsViewModel;
 import com.project.tta.viewModels.CriterionsModelView;
 import com.project.tta.viewModels.GroupViewModel;
+import org.hibernate.annotations.AnyDiscriminator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,5 +88,58 @@ public class TimeTableController {
         var g = new AllGradesViewModel(allGroupList,null,null);
         model.addAttribute("model", g);
         return "group-list";
+    }
+
+    @GetMapping("/grades/all")
+    public String getAllRecords(
+                                @RequestParam(required = false) String groupNameFilter,
+                                @RequestParam(required = false) String criterionNameFilter,
+                                @RequestParam(required = false) String sortBy,
+                                @RequestParam(required = false) String sortOrder,
+                                @RequestParam(defaultValue = "0") Integer page,
+                                @RequestParam(defaultValue = "10") int size,
+                                Model model) {
+
+        List<Group> filteredGroups = ttaService.findGroupsByFilter(groupNameFilter);
+        List<CriterionEvaluation> filteredCriteria = ttaService.findCriteriaByFilter(criterionNameFilter);
+
+        var groupCriteriaScores = filteredGroups.stream()
+                .flatMap(group -> group.getTTEvaluation().getCriterionEvaluationList().stream().filter(criterion -> filteredCriteria.isEmpty() || filteredCriteria.contains(criterion))
+                        .map(criterion -> new AllRecordsViewModel(
+                                group.getName(),
+                                criterion.getCriterionName(),
+                                criterion.getScore()
+                        )))
+                .toList();
+
+        if ("groupName".equalsIgnoreCase(sortBy)) {
+            groupCriteriaScores = "asc".equalsIgnoreCase(sortOrder) ?
+                    groupCriteriaScores.stream().sorted(Comparator.comparing(AllRecordsViewModel::getGroupName)).toList() :
+                    groupCriteriaScores.stream().sorted(Comparator.comparing(AllRecordsViewModel::getGroupName).reversed()).toList();
+        } else if ("criterionName".equalsIgnoreCase(sortBy)) {
+            groupCriteriaScores = "asc".equalsIgnoreCase(sortOrder) ?
+                    groupCriteriaScores.stream().sorted(Comparator.comparing(AllRecordsViewModel::getCriterionName)).toList() :
+                    groupCriteriaScores.stream().sorted(Comparator.comparing(AllRecordsViewModel::getCriterionName).reversed()).toList();
+        } else if ("score".equalsIgnoreCase(sortBy)) {
+            groupCriteriaScores = "asc".equalsIgnoreCase(sortOrder) ?
+                    groupCriteriaScores.stream().sorted(Comparator.comparing(AllRecordsViewModel::getScore)).toList() :
+                    groupCriteriaScores.stream().sorted(Comparator.comparing(AllRecordsViewModel::getScore).reversed()).toList();
+        }
+
+        int totalItems = groupCriteriaScores.size();
+        List<AllRecordsViewModel> paginatedData = groupCriteriaScores.stream()
+                .skip((long) page * size)
+                .limit(size)
+                .toList();
+
+        model.addAttribute("groupCriteriaScores", paginatedData);
+        model.addAttribute("pageCount", Math.ceil((double) totalItems / size));
+        model.addAttribute("currentPage", page);
+        model.addAttribute("groupNameFilter", groupNameFilter);
+        model.addAttribute("criterionNameFilter", criterionNameFilter);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortOrder", sortOrder);
+
+        return "all_records";
     }
 }
