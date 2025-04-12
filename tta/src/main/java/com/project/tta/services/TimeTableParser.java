@@ -1,5 +1,6 @@
 package com.project.tta.services;
 
+import com.project.tta.models.TTEvaluation;
 import org.springframework.stereotype.Service;
 
 import org.jsoup.*;
@@ -14,28 +15,37 @@ import java.util.List;
 @Service
 public class TimeTableParser {
     static final String HOME_PATH = "https://www.miit.ru";
-//    public List<GroupLink> getLinks() throws IOException {
-//        List<GroupLink> links = new ArrayList<>();
-//        Document doc = Jsoup.connect(HOME_PATH + "/timetable").get();
-//        Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
-//        for (Element group : groups) {
-//            Element aAttrs = group.selectFirst("a");
-//            if (!aAttrs.attr("href").equals("#")) {
-//                links.add(new GroupLink(
-//                        group.select("a").text(),
-//                        aAttrs.attr("href")));
-//            } else {
-//                Elements sameNameGroups = group.getElementsByClass("dropdown-menu")
-//                        .select("a");
-//                for (Element g : sameNameGroups) {
-//                    links.add(new GroupLink(
-//                            g.text()
-//                            , g.attr("href")));
-//                }
-//            }
-//        }
-//        return links;
-//    }
+
+    public void getLinks(EvaluationService evaluationService, TTAService ttaService) throws IOException {
+        Document doc = Jsoup.connect(HOME_PATH + "/timetable/").get();
+        Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
+        for (Element group : groups) {
+            Element aAttrs = group.selectFirst("a");
+            if (!aAttrs.attr("href").equals("#")) {
+                var linkArr = aAttrs.attr("href").split("/");
+                String link = linkArr[linkArr.length - 1];
+                if (!ttaService.existByLink(link)) {
+                    evaluationService.evaluateTimeTable(getTimeTable(link));
+                }
+                //TODO: update!
+
+            } else {
+                Elements sameNameGroups = group.getElementsByClass("dropdown-menu")
+                        .select("a");
+                for (Element g : sameNameGroups) {
+                    var linkArr = g.attr("href").split("/");
+                    String link = linkArr[linkArr.length - 1];
+                    if (!ttaService.existByLink(link)) {
+                        evaluationService.evaluateTimeTable(getTimeTable(link));
+                    }
+                    //TODO: update!
+                }
+            }
+        }
+// https://www.miit.ru/timetable/193083 пятница и суббота учеба)) Index 12 out of bounds for length 12
+//        https://www.miit.ru/timetable/193531 непостоянное расписание
+//        https://www.miit.ru/timetable/193334 непостоянное расписание тд Расписание действует с 10.02.2025 по 18.06.2025
+    }//парсинг за 6 минут
 
     public String getGroupName(Document document) throws IOException {
         var h1 = document.selectFirst("h1").text().split(" ");
@@ -44,21 +54,19 @@ public class TimeTableParser {
     }
 
     public Integer getCourse(String groupName) throws IOException {
-        return Integer.parseInt(groupName.split("-")[1].substring(0,1));
+        return Integer.parseInt(groupName.split("-")[1].substring(0, 1));
     }
 
-    public boolean isEmpty(Document document){
+    public boolean isEmpty(Document document) {
         var a = document.selectFirst("section").text().contains("Информация о расписании отсутствует");
-        System.out.println(a);
-
         return false;
     }
 
-     public TimeTable getTimeTable(String link) throws IOException {
+    public TimeTable getTimeTable(String link) throws IOException {
         int n = 12;
         int m = 8;
         Document doc = Jsoup.connect(HOME_PATH + "/timetable/" + link).get();
-        if (isEmpty(doc)){
+        if (isEmpty(doc)) {
             throw new RuntimeException("HTML page is not containing time table");
         }
         String[][] timeTable = new String[n][m];
@@ -78,7 +86,7 @@ public class TimeTableParser {
         }
         var name = getGroupName(doc);
         var course = getCourse(name);
-        return new TimeTable(name,link,course,timeTable);
+        return new TimeTable(name, link, course, timeTable);
     }
 
     private String[][] getWeekTimetable(Document doc, String weekNum) throws IOException {
@@ -124,6 +132,7 @@ public class TimeTableParser {
         }
         return timeTable;
     }
+
     public String printTimeTable(String[][] timeTable) {
         if (timeTable == null) {
             System.out.println("Расписание пусто");
@@ -143,12 +152,12 @@ public class TimeTableParser {
         }
         return stringBuilder.toString();
     }
+
     public static void main(String[] args) throws IOException {
 //        String link = "/timetable/189115";
         String link = "/timetable/189119";
         TimeTableParser ttp = new TimeTableParser();
-        ttp.isEmpty(Jsoup.connect(HOME_PATH + link).get());
     }
 }
-////https://www.miit.ru/timetable/189119 empty tt
+/// /https://www.miit.ru/timetable/189119 empty tt
 

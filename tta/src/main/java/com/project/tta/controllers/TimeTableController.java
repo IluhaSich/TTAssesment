@@ -9,7 +9,6 @@ import com.project.tta.viewModels.AllGradesViewModel;
 import com.project.tta.viewModels.AllRecordsViewModel;
 import com.project.tta.viewModels.CriterionsModelView;
 import com.project.tta.viewModels.GroupViewModel;
-import org.hibernate.annotations.AnyDiscriminator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class TimeTableController {
@@ -42,8 +40,8 @@ public class TimeTableController {
         String result = "";
         try {
             result = timeTableParser.printTimeTable(timeTableParser.getTimeTable(link).getTimeTable());
-        }catch (IOException e){
-            log.error("IOException when getTimeTable with link = "+link + " :" + e);
+        } catch (IOException e) {
+            log.error("IOException when getTimeTable with link = " + link + " :" + e);
         }
         return result;
     }
@@ -52,7 +50,7 @@ public class TimeTableController {
     @GetMapping("/grades/{link}")
     public String getGrade(@PathVariable String link, Model model) {
         Group group = null;
-        if (ttaService.existByLink(link)){
+        if (ttaService.existByLink(link)) {
             group = ttaService.findByLink(link);
         } else {
             try {
@@ -68,14 +66,23 @@ public class TimeTableController {
                 group.getLink(),
                 group.getTTEvaluation().getTotal_grade(),
                 group.getTTEvaluation().getCriterionEvaluationList().stream()
-                        .map( c -> new CriterionsModelView(c.getCriterionName(),c.getScore()))
+                        .map(c -> new CriterionsModelView(c.getCriterionName(), c.getScore()))
                         .toList());
         model.addAttribute("model", g);
         return "group";
     }
 
+    @GetMapping("/add_groups/")
+    public void addGroups() {
+        try {
+            timeTableParser.getLinks(evaluationService, ttaService);
+        } catch (IOException e) {
+            log.error("IOException when add_groups : "+ e);
+        }
+    }
+
     @GetMapping("/grades/")
-    public String getGrades(Model model){
+    public String getGrades(Model model) {
         var groups = ttaService.findAll();
         var allGroupList = groups.stream().map(
                 g -> new GroupViewModel(
@@ -83,22 +90,22 @@ public class TimeTableController {
                         g.getLink(),
                         g.getTTEvaluation().getTotal_grade(),
                         g.getTTEvaluation().getCriterionEvaluationList().stream().map(
-                                t -> new CriterionsModelView(t.getCriterionName(),t.getScore())).toList()
-                        )).toList();
-        var g = new AllGradesViewModel(allGroupList,null,null);
+                                t -> new CriterionsModelView(t.getCriterionName(), t.getScore())).toList()
+                )).toList();
+        var g = new AllGradesViewModel(allGroupList, null, null);
         model.addAttribute("model", g);
         return "group-list";
     }
 
     @GetMapping("/grades/all")
     public String getAllRecords(
-                                @RequestParam(required = false) String groupNameFilter,
-                                @RequestParam(required = false) String criterionNameFilter,
-                                @RequestParam(required = false) String sortBy,
-                                @RequestParam(required = false) String sortOrder,
-                                @RequestParam(defaultValue = "0") Integer page,
-                                @RequestParam(defaultValue = "10") int size,
-                                Model model) {
+            @RequestParam(required = false) String groupNameFilter,
+            @RequestParam(required = false) String criterionNameFilter,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortOrder,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "30") int size,
+            Model model) {
 
         List<Group> filteredGroups = ttaService.findGroupsByFilter(groupNameFilter);
         List<CriterionEvaluation> filteredCriteria = ttaService.findCriteriaByFilter(criterionNameFilter);
