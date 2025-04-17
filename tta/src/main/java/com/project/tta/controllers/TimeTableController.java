@@ -3,6 +3,7 @@ package com.project.tta.controllers;
 import com.project.tta.models.CriterionEvaluation;
 import com.project.tta.models.Group;
 import com.project.tta.services.EvaluationService;
+import com.project.tta.services.InstituteMapper;
 import com.project.tta.services.TTAService;
 import com.project.tta.services.TimeTableParser;
 import com.project.tta.viewModels.AllGradesViewModel;
@@ -18,8 +19,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class TimeTableController {
@@ -81,39 +83,78 @@ public class TimeTableController {
         }
     }
 
-    @GetMapping("/grades/")
-    public String getGrades(Model model) {
-        var groups = ttaService.findAll();
-        var allGroupList = groups.stream().map(
-                g -> new GroupViewModel(
-                        g.getName(),
-                        g.getLink(),
-                        g.getTTEvaluation().getTotal_grade(),
-                        g.getTTEvaluation().getCriterionEvaluationList().stream().map(
-                                t -> new CriterionsModelView(t.getCriterionName(), t.getScore())).toList()
-                )).toList();
-        var g = new AllGradesViewModel(allGroupList, null, null);
-        model.addAttribute("model", g);
-        return "group-list";
-    }
+//    @GetMapping("/grades/")
+//    public String getGrades(Model model) {
+//        var groups = ttaService.findAll();
+//        var allGroupList = groups.stream().map(
+//                g -> new GroupViewModel(
+//                        g.getName(),
+//                        g.getLink(),
+//                        g.getTTEvaluation().getTotal_grade(),
+//                        g.getTTEvaluation().getCriterionEvaluationList().stream().map(
+//                                t -> new CriterionsModelView(t.getCriterionName(), t.getScore())).toList()
+//                )).toList();
+//        var g = new AllGradesViewModel(allGroupList, null, null);
+//        model.addAttribute("model", g);
+//        return "group-list";
+//    }
 
     @GetMapping("/grades/all")
     public String getAllRecords(
             @RequestParam(required = false) String groupNameFilter,
             @RequestParam(required = false) String criterionNameFilter,
+            @RequestParam(required = false) String instituteFilter,
             @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String sortOrder,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "30") int size,
             Model model) {
 
+        List<Group> groups = ttaService.findAllGroups();
+        List<CriterionEvaluation> criteria = ttaService.findAllCriteria();
+
+        Set<String> institutes = groups.stream()
+                .map(group -> InstituteMapper.getInstituteByGroupName(group.getName()))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+
         List<Group> filteredGroups = ttaService.findGroupsByFilter(groupNameFilter);
+
         List<CriterionEvaluation> filteredCriteria = ttaService.findCriteriaByFilter(criterionNameFilter);
 
+//        var groupCriteriaScores = filteredGroups.stream()
+//                .flatMap(group -> {
+//                    if (group.getTTEvaluation() == null) {
+//                        return Stream.empty();
+//                    }
+//                    return group.getTTEvaluation().getCriterionEvaluationList().stream()
+//                            .filter(criterion -> {
+//                                if (filteredCriteria.isEmpty()) {
+//                                    return true;
+//                                }
+//                                return filteredCriteria.stream()
+//                                        .anyMatch(c -> c.getCriterionName().equalsIgnoreCase(criterion.getCriterionName()));
+//                            })
+//                            .map(criterion -> new AllRecordsViewModel(
+//                                    group.getName(),
+//                                    group.getLink(),
+//                                    criterion.getCriterionName(),
+//                                    criterion.getScore()
+//                            ));
+//                })
+//                .toList();
+
         var groupCriteriaScores = filteredGroups.stream()
-                .flatMap(group -> group.getTTEvaluation().getCriterionEvaluationList().stream().filter(criterion -> filteredCriteria.isEmpty() || filteredCriteria.contains(criterion))
-                        .map(criterion -> new AllRecordsViewModel(
+                .flatMap(group -> group.getTTEvaluation().getCriterionEvaluationList().stream()
+                        .filter(criterion -> {
+                                if (filteredCriteria.isEmpty()) {
+                                    return true;
+                                }
+                                return filteredCriteria.stream()
+                                        .anyMatch(c -> c.getCriterionName().equalsIgnoreCase(criterion.getCriterionName()));
+                            }).map(criterion -> new AllRecordsViewModel(
                                 group.getName(),
+                                group.getLink(),
                                 criterion.getCriterionName(),
                                 criterion.getScore()
                         )))
@@ -142,11 +183,14 @@ public class TimeTableController {
         model.addAttribute("groupCriteriaScores", paginatedData);
         model.addAttribute("pageCount", Math.ceil((double) totalItems / size));
         model.addAttribute("currentPage", page);
-        model.addAttribute("groupNameFilter", groupNameFilter);
-        model.addAttribute("criterionNameFilter", criterionNameFilter);
+        model.addAttribute("allGroups", groups);
+        model.addAttribute("allCriteria", criteria);
+        model.addAttribute("allInstitutes", institutes);
+        model.addAttribute("selectedInstitute", instituteFilter);
+        model.addAttribute("selectedGroup", groupNameFilter);
+        model.addAttribute("selectedCriterion", criterionNameFilter);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortOrder", sortOrder);
-
         return "all_records";
     }
 }

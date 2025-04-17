@@ -27,8 +27,12 @@ public class TTAService {
         return group;
     }
 
-    public List<Group> findAll(){
+    public List<Group> findAllGroups(){
         return groupRepository.findAll();
+    }
+
+    public List<CriterionEvaluation> findAllCriteria(){
+        return criterionEvaluationRepository.findAll();
     }
 
     public List<Group> findGroupsByFilter(String groupNameFilter) {
@@ -43,6 +47,22 @@ public class TTAService {
             return criterionEvaluationRepository.findAll();
         }
         return criterionEvaluationRepository.findByFilter(criterionNameFilter.toLowerCase());
+    }
+
+    //TODO: проблема с фильтрацией по институту (и фильтрация по группе ломается)
+    public List<Group> findGroupsByInstituteAndFilters(String instituteFilter, String groupNameFilter) {
+        if (groupNameFilter != null && !groupNameFilter.isEmpty()) {
+            return findGroupsByFilter(groupNameFilter);
+        }
+        if (instituteFilter != null && !instituteFilter.isEmpty()) {
+            return groupRepository.findAll().stream()
+                    .filter(group -> {
+                        String groupInstitute = InstituteMapper.getInstituteByGroupName(group.getName());
+                        return groupInstitute.equalsIgnoreCase(instituteFilter);
+                    })
+                    .toList();
+        }
+        return groupRepository.findAll();
     }
 
     public boolean existByName(String name){

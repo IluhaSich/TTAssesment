@@ -109,7 +109,7 @@ public class EvaluationService implements EvaluationInterface {
             }
         }
         log.info("evaluate by gap and return {}", result);
-        params.put("Evaluation by gaps", result);
+        params.put("Оценка по наличию окон", result);
         return params;
     }
 
@@ -122,7 +122,7 @@ public class EvaluationService implements EvaluationInterface {
             default -> 0;
         };
         log.info("evaluate by study days = {} and return {}", studyDays, result);
-        params.put("Evaluation by study days", result);
+        params.put("Оценка по количеству учебных дней", result);
         return params;
     }
 
@@ -142,7 +142,7 @@ public class EvaluationService implements EvaluationInterface {
         if (cv < 0.8) result = 1;
         log.info("evaluate by load balance with CV = {} and return {}",
                 Math.floor(cv * 100) / 100, result);
-        params.put("Evaluation by load balance", result);
+        params.put("Оценка по равномерности нагрузки", result);
         return params;
     }
 
@@ -159,7 +159,7 @@ public class EvaluationService implements EvaluationInterface {
             result = 2;
         }
         log.info("evaluate by daily load and return {}", result);
-        params.put("Evaluation by daily load", result);
+        params.put("Оценка по общему числу пар", result);
         return params;
     }
 
@@ -195,7 +195,7 @@ public class EvaluationService implements EvaluationInterface {
             }
         }
         log.info("evaluate by lessons start time and return {}", result);
-        params.put("Evaluation by lessons start time", result);
+        params.put("Оценка по времени начала занятий", result);
         return params;
     }
 
@@ -236,7 +236,7 @@ public class EvaluationService implements EvaluationInterface {
             }
         }
         log.info("evaluate by lessons end time and return {}", result);
-        params.put("Evaluation by lessons end time", result);
+        params.put("Оценка по времени окончания занятий", result);
         return params;
     }
 
@@ -251,7 +251,7 @@ public class EvaluationService implements EvaluationInterface {
             }
         }
         log.info("evaluate by weekend distribution and return {}", result);
-        params.put("Evaluation by weekend distribution", result);
+        params.put("Оценка по распределению выходных", result);
         return params;
     }
 
@@ -278,7 +278,7 @@ public class EvaluationService implements EvaluationInterface {
             result = 3;
         }
         log.info("evaluate by having long break and return {}", result);
-        params.put("Evaluation by having long break",result);
+        params.put("Оценка по наличию большого перерыва",result);
         return params;
     }
 
