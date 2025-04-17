@@ -49,10 +49,10 @@ public class TTAService {
         return criterionEvaluationRepository.findByFilter(criterionNameFilter.toLowerCase());
     }
 
-    //TODO: проблема с фильтрацией по институту (и фильтрация по группе ломается)
+    //TODO: прикрутить вывод частичного списка групп и выбранном институте (опционально)
     public List<Group> findGroupsByInstituteAndFilters(String instituteFilter, String groupNameFilter) {
         if (groupNameFilter != null && !groupNameFilter.isEmpty()) {
-            return findGroupsByFilter(groupNameFilter);
+            return groupRepository.findByNameIgnoreCase(groupNameFilter);
         }
         if (instituteFilter != null && !instituteFilter.isEmpty()) {
             return groupRepository.findAll().stream()

@@ -15,4 +15,6 @@ public interface GroupRepository extends BaseRepository<Group,Long>{
     Optional<Group> findByLink(String link);
     @Query("SELECT g FROM Group g WHERE LOWER(g.name) LIKE %:query%")
     List<Group> findByFilter(@Param("query") String query);
+    @Query("SELECT g FROM Group g WHERE LOWER(g.name) = LOWER(:name)")
+    List<Group> findByNameIgnoreCase(@Param("name") String name);
 }

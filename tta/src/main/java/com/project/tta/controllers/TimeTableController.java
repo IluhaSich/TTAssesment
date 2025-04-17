@@ -118,47 +118,47 @@ public class TimeTableController {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
 
-        List<Group> filteredGroups = ttaService.findGroupsByFilter(groupNameFilter);
+        List<Group> filteredGroups = ttaService.findGroupsByInstituteAndFilters(instituteFilter, groupNameFilter);
 
         List<CriterionEvaluation> filteredCriteria = ttaService.findCriteriaByFilter(criterionNameFilter);
 
-//        var groupCriteriaScores = filteredGroups.stream()
-//                .flatMap(group -> {
-//                    if (group.getTTEvaluation() == null) {
-//                        return Stream.empty();
-//                    }
-//                    return group.getTTEvaluation().getCriterionEvaluationList().stream()
-//                            .filter(criterion -> {
-//                                if (filteredCriteria.isEmpty()) {
-//                                    return true;
-//                                }
-//                                return filteredCriteria.stream()
-//                                        .anyMatch(c -> c.getCriterionName().equalsIgnoreCase(criterion.getCriterionName()));
-//                            })
-//                            .map(criterion -> new AllRecordsViewModel(
-//                                    group.getName(),
-//                                    group.getLink(),
-//                                    criterion.getCriterionName(),
-//                                    criterion.getScore()
-//                            ));
-//                })
-//                .toList();
-
         var groupCriteriaScores = filteredGroups.stream()
-                .flatMap(group -> group.getTTEvaluation().getCriterionEvaluationList().stream()
-                        .filter(criterion -> {
+                .flatMap(group -> {
+                    if (group.getTTEvaluation() == null) {
+                        return Stream.empty();
+                    }
+                    return group.getTTEvaluation().getCriterionEvaluationList().stream()
+                            .filter(criterion -> {
                                 if (filteredCriteria.isEmpty()) {
                                     return true;
                                 }
                                 return filteredCriteria.stream()
                                         .anyMatch(c -> c.getCriterionName().equalsIgnoreCase(criterion.getCriterionName()));
-                            }).map(criterion -> new AllRecordsViewModel(
-                                group.getName(),
-                                group.getLink(),
-                                criterion.getCriterionName(),
-                                criterion.getScore()
-                        )))
+                            })
+                            .map(criterion -> new AllRecordsViewModel(
+                                    group.getName(),
+                                    group.getLink(),
+                                    criterion.getCriterionName(),
+                                    criterion.getScore()
+                            ));
+                })
                 .toList();
+
+//        var groupCriteriaScores = filteredGroups.stream()
+//                .flatMap(group -> group.getTTEvaluation().getCriterionEvaluationList().stream()
+//                        .filter(criterion -> {
+//                                if (filteredCriteria.isEmpty()) {
+//                                    return true;
+//                                }
+//                                return filteredCriteria.stream()
+//                                        .anyMatch(c -> c.getCriterionName().equalsIgnoreCase(criterion.getCriterionName()));
+//                            }).map(criterion -> new AllRecordsViewModel(
+//                                group.getName(),
+//                                group.getLink(),
+//                                criterion.getCriterionName(),
+//                                criterion.getScore()
+//                        )))
+//                .toList();
 
         if ("groupName".equalsIgnoreCase(sortBy)) {
             groupCriteriaScores = "asc".equalsIgnoreCase(sortOrder) ?
