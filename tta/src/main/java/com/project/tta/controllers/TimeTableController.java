@@ -1,5 +1,6 @@
 package com.project.tta.controllers;
 
+import com.project.tta.dtos.GroupTotalScore;
 import com.project.tta.models.CriterionEvaluation;
 import com.project.tta.models.Group;
 import com.project.tta.services.EvaluationService;
@@ -17,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.util.*;
@@ -110,7 +112,19 @@ public class TimeTableController {
             @RequestParam(defaultValue = "30") int size,
             Model model) {
 
-        List<Group> groups = ttaService.findAllGroups();
+//        List<Group> groups = ttaService.findAllGroups();
+//        List<CriterionEvaluation> criteria = ttaService.findAllCriteria();
+//
+//        Set<String> institutes = groups.stream()
+//                .map(group -> InstituteMapper.getInstituteByGroupName(group.getName()))
+//                .filter(s -> !s.isEmpty())
+//                .collect(Collectors.toSet());
+//
+//        List<Group> filteredGroups = ttaService.findGroupsByInstituteAndFilters(instituteFilter, groupNameFilter);
+//
+//        List<CriterionEvaluation> filteredCriteria = ttaService.findCriteriaByFilter(criterionNameFilter);
+        List<Group> groups = ttaService.findAllGroupsFilteredByInstitute(instituteFilter);
+
         List<CriterionEvaluation> criteria = ttaService.findAllCriteria();
 
         Set<String> institutes = groups.stream()
@@ -121,6 +135,7 @@ public class TimeTableController {
         List<Group> filteredGroups = ttaService.findGroupsByInstituteAndFilters(instituteFilter, groupNameFilter);
 
         List<CriterionEvaluation> filteredCriteria = ttaService.findCriteriaByFilter(criterionNameFilter);
+
 
         var groupCriteriaScores = filteredGroups.stream()
                 .flatMap(group -> {
@@ -143,22 +158,6 @@ public class TimeTableController {
                             ));
                 })
                 .toList();
-
-//        var groupCriteriaScores = filteredGroups.stream()
-//                .flatMap(group -> group.getTTEvaluation().getCriterionEvaluationList().stream()
-//                        .filter(criterion -> {
-//                                if (filteredCriteria.isEmpty()) {
-//                                    return true;
-//                                }
-//                                return filteredCriteria.stream()
-//                                        .anyMatch(c -> c.getCriterionName().equalsIgnoreCase(criterion.getCriterionName()));
-//                            }).map(criterion -> new AllRecordsViewModel(
-//                                group.getName(),
-//                                group.getLink(),
-//                                criterion.getCriterionName(),
-//                                criterion.getScore()
-//                        )))
-//                .toList();
 
         if ("groupName".equalsIgnoreCase(sortBy)) {
             groupCriteriaScores = "asc".equalsIgnoreCase(sortOrder) ?
@@ -192,5 +191,46 @@ public class TimeTableController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortOrder", sortOrder);
         return "all_records";
+    }
+
+    @GetMapping("/grades/total")
+    public String getTotalResults(
+            @RequestParam(required = false, defaultValue = "groupName") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortOrder,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "30") int size,
+            Model model) {
+
+        List<GroupTotalScore> totalScores = ttaService.calculateTotalScores();
+
+        if ("groupName".equalsIgnoreCase(sortBy)) {
+            totalScores = "asc".equalsIgnoreCase(sortOrder) ?
+                    totalScores.stream().sorted(Comparator.comparing(GroupTotalScore::getGroupName)).toList() :
+                    totalScores.stream().sorted(Comparator.comparing(GroupTotalScore::getGroupName).reversed()).toList();
+        } else if ("score".equalsIgnoreCase(sortBy)) {
+            totalScores = "asc".equalsIgnoreCase(sortOrder) ?
+                    totalScores.stream().sorted(Comparator.comparingDouble(GroupTotalScore::getTotalScore)).toList() :
+                    totalScores.stream().sorted(Comparator.comparingDouble(GroupTotalScore::getTotalScore).reversed()).toList();
+        }
+
+        int totalItems = totalScores.size();
+        List<GroupTotalScore> paginatedData = totalScores.stream()
+                .skip((long) page * size)
+                .limit(size)
+                .toList();
+
+        model.addAttribute("totalScores", paginatedData);
+        model.addAttribute("pageCount", Math.ceil((double) totalItems / size));
+        model.addAttribute("currentPage", page);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortOrder", sortOrder);
+
+        return "total_results";
+    }
+
+    @GetMapping("/grades/all-groups")
+    @ResponseBody
+    public List<Group> getAllGroups() {
+        return ttaService.findAllGroups();
     }
 }

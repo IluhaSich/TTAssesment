@@ -1,5 +1,54 @@
 <html lang="ru" class="h-100" xmlns:th="http://www.thymeleaf.org">
-<!--<head th:replace="~{fragments/head}"></head>-->
+<head>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener("DOMContentLoaded", function () {
+            const instituteSelect = document.getElementById("instituteFilter");
+            const groupSelect = document.getElementById("groupNameFilter");
+
+            instituteSelect.addEventListener("change", function () {
+                const selectedInstitute = instituteSelect.value;
+
+                // Очищаем выпадающий список групп
+                groupSelect.innerHTML = "";
+
+                // Если институт не выбран, загружаем все группы
+                if (!selectedInstitute) {
+                    fetch("/grades/all-groups")
+                        .then(response => response.json())
+                        .then(groups => {
+                            groups.forEach(group => {
+                                const option = document.createElement("option");
+                                option.value = group.name;
+                                option.textContent = group.name;
+                                if ("/*[(${selectedGroup})]*/" === group.name) {
+                                    option.selected = true;
+                                }
+                                groupSelect.appendChild(option);
+                            });
+                        });
+                    return;
+                }
+
+                // Иначе загружаем группы, относящиеся к выбранному институту
+                fetch("/grades/groups?institute=" + selectedInstitute)
+                    .then(response => response.json())
+                    .then(groups => {
+                        groups.forEach(group => {
+                            const option = document.createElement("option");
+                            option.value = group.name;
+                            option.textContent = group.name;
+                            if ("/*[(${selectedGroup})]*/" === group.name) {
+                                option.selected = true;
+                            }
+                            groupSelect.appendChild(option);
+                        });
+                    });
+            });
+        });
+        /*]]>*/
+    </script>
+</head>
 <body class="d-flex flex-column h-100">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <h1>Оценки групп по критериям</h1>

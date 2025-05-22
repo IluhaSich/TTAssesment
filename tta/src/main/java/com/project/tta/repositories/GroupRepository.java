@@ -17,4 +17,6 @@ public interface GroupRepository extends BaseRepository<Group,Long>{
     List<Group> findByFilter(@Param("query") String query);
     @Query("SELECT g FROM Group g WHERE LOWER(g.name) = LOWER(:name)")
     List<Group> findByNameIgnoreCase(@Param("name") String name);
+    @Query("SELECT g FROM Group g WHERE SUBSTRING(g.name, 1, 1) = :initial")
+    List<Group> findByInitial(@Param("initial") String initial);
 }
