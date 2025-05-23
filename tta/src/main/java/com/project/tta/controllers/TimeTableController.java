@@ -11,6 +11,8 @@ import com.project.tta.viewModels.CriterionsModelView;
 import com.project.tta.viewModels.GroupViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class TimeTableController {
@@ -60,6 +63,7 @@ public class TimeTableController {
                 log.error("IOException when getGrade with link = " + link + " :" + e);
             }
         }
+        if (group == null) return null;
 
         var g = new GroupViewModel(
                 group.getName(),
@@ -73,14 +77,28 @@ public class TimeTableController {
     }
 
     @GetMapping("/add_groups/")
-    public void addGroups() {
+    public ResponseEntity<String> addGroups() {
         try {
             timeTableParser.getLinks(evaluationService, ttaService);
+            return ResponseEntity.ok("Groups added successfully.");
         } catch (IOException e) {
-            log.error("IOException when add_groups : "+ e);
+            log.error("IOException when add_groups: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to parse timetable links (IOException).");
+        } catch (ExecutionException e) {
+            log.error("ExecutionException when add_groups: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Execution error during group parsing.");
+        } catch (InterruptedException e) {
+            log.error("InterruptedException when add_groups: ", e);
+            Thread.currentThread().interrupt(); // Restore interrupt status
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Request was interrupted.");
         }
     }
 
+
+//ВВП-211 Index 12 out of bounds for length 12
     @GetMapping("/grades/")
     public String getGrades(Model model) {
         var groups = ttaService.findAll();

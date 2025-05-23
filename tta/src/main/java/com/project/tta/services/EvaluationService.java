@@ -35,6 +35,9 @@ public class EvaluationService implements EvaluationInterface {
     @Override
     public Group evaluateTimeTable(TimeTable timeTable) {
         //* @param senior false — младший курс, true — старший курс
+        if (timeTable == null) return null;
+//        if (timeTable == null) throw new RuntimeException("timeTable == null");
+
         boolean senior = timeTable.getCourse() > 2;
         var table = timeTable.getTimeTable();
         if (table == null) {
@@ -243,14 +246,14 @@ public class EvaluationService implements EvaluationInterface {
     @Override
     public Map<String, Integer> evaluateWeekendDistribution(String[][] table, Map<String, Integer> params) {
         int result = 1;
-        if (dayIsFree(table[5]) || dayIsFree(table[6])
-                && dayIsFree(table[12]) || dayIsFree(table[7])) result = 3;
-        for (int i = 1; i <= table.length - 2; i++) {
-            if (dayIsFree(table[i])) {
-                if (dayIsFree(table[i + 1])) result = 3;
-            }
-        }
-        log.info("evaluate by weekend distribution and return {}", result);
+//        if (dayIsFree(table[5]) || dayIsFree(table[6])
+//                && dayIsFree(table[12]) || dayIsFree(table[7])) result = 3;
+//        for (int i = 1; i <= table.length - 2; i++) {
+//            if (dayIsFree(table[i])) {
+//                if (dayIsFree(table[i + 1])) result = 3;
+//            }
+//        }
+//        log.info("evaluate by weekend distribution and return {}", result);
         params.put("Evaluation by weekend distribution", result);
         return params;
     }
