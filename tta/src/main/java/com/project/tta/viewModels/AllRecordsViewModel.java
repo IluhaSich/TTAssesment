@@ -2,11 +2,13 @@ package com.project.tta.viewModels;
 
 public class AllRecordsViewModel {
     private String groupName;
+    private String link;
     private String criterionName;
     private int score;
 
-    public AllRecordsViewModel(String groupName, String criterionName, int score) {
+    public AllRecordsViewModel(String groupName, String link, String criterionName, int score) {
         this.groupName = groupName;
+        this.link = link;
         this.criterionName = criterionName;
         this.score = score;
     }
@@ -33,5 +35,13 @@ public class AllRecordsViewModel {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }
