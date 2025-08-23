@@ -7,12 +7,13 @@ import com.project.tta.services.EvaluationService;
 import com.project.tta.services.InstituteMapper;
 import com.project.tta.services.TTAService;
 import com.project.tta.services.TimeTableParser;
-import com.project.tta.viewModels.AllGradesViewModel;
 import com.project.tta.viewModels.AllRecordsViewModel;
 import com.project.tta.viewModels.CriterionsModelView;
 import com.project.tta.viewModels.GroupViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,12 +78,26 @@ public class TimeTableController {
         return "group";
     }
 
+
     @GetMapping("/add_groups/")
-    public void addGroups() {
+    public ResponseEntity<String> addGroups() {
         try {
             timeTableParser.getLinks(evaluationService, ttaService);
+            return ResponseEntity.ok("Groups added successfully.");
         } catch (IOException e) {
-            log.error("IOException when add_groups : "+ e);
+            log.error("IOException when add_groups : " + e);
+            log.error("IOException when add_groups: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to parse timetable links (IOException).");
+        } catch (ExecutionException e) {
+            log.error("ExecutionException when add_groups: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Execution error during group parsing.");
+        } catch (InterruptedException e) {
+            log.error("InterruptedException when add_groups: ", e);
+            Thread.currentThread().interrupt();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Request was interrupted.");
         }
     }
 
