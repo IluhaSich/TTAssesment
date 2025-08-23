@@ -76,7 +76,7 @@ public class TimeTableController {
         return "group";
     }
 
-    @GetMapping("/add_groups/")
+    @GetMapping("/add_groups")
     public void addGroups() {
         try {
             timeTableParser.getLinks(evaluationService, ttaService);
