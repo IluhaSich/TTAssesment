@@ -1,7 +1,8 @@
 package com.project.tta.services.criteria;
 
+import com.project.tta.models.Setting;
 import com.project.tta.models.StudentProfile;
-import com.project.tta.services.interfaces.EvaluationCriterion;
+import com.project.tta.services.criteria.interfaces.EvaluationCriterion;
 
 public class GapsCriterion implements EvaluationCriterion {
     @Override
@@ -10,7 +11,7 @@ public class GapsCriterion implements EvaluationCriterion {
     }
 
     @Override
-    public int evaluate(String[][] timeTable, StudentProfile profile) {
+    public int evaluate(String[][] timeTable, Setting setting) {
         return 0;
     }
 }

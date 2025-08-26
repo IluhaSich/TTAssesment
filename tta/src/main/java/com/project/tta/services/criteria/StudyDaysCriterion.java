@@ -1,8 +1,9 @@
 package com.project.tta.services.criteria;
 
+import com.project.tta.models.Setting;
 import com.project.tta.models.StudentProfile;
 import com.project.tta.services.EvaluationService;
-import com.project.tta.services.interfaces.EvaluationCriterion;
+import com.project.tta.services.criteria.interfaces.EvaluationCriterion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ public class StudyDaysCriterion implements EvaluationCriterion {
     }
 
     @Override
-    public int evaluate(String[][] timeTable, StudentProfile profile) {
+    public int evaluate(String[][] timeTable, Setting setting) {
         int studyDays = timeTable.length - getFreeDaysQuantity(timeTable);
         int result = switch (studyDays) {
             case 10 -> -3;

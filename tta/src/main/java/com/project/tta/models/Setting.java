@@ -1,5 +1,7 @@
 package com.project.tta.models;
 
-public enum AcademicDegree {
-    BACHELOR, MASTER, PHD
+public enum Setting {
+    BACHELOR,
+    BACHELOR_SENIOR,
+    MASTER
 }
