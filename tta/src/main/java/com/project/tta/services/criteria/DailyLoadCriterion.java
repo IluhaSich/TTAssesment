@@ -6,6 +6,7 @@ import com.project.tta.services.EvaluationService;
 import com.project.tta.services.criteria.interfaces.EvaluationCriterion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ import static com.project.tta.services.criteria.BasicCriteria.getLessonQuantity;
 /**
  * Класс для оценки по степени загрузки студента.
  */
+@Component
 public class DailyLoadCriterion implements EvaluationCriterion {
     private Map<Setting, Map<String, Integer>> penaltyRules = Map.of(
     Setting.BACHELOR, Map.of(
