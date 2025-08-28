@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 @Service
+@Deprecated
 public class EvaluationService implements EvaluationInterface {
     private final CriterionEvaluationRepository criterionEvaluationRepository;
     private final GroupRepository groupRepository;
@@ -33,6 +34,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
+    @Deprecated
     public Group evaluateTimeTable(TimeTable timeTable) {
         //* @param senior false — младший курс, true — старший курс
         if (timeTable == null) return null;
@@ -88,6 +90,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
+    @Deprecated
     public Map<String, Integer> evaluateGaps(String[][] table, Map<String, Integer> params) {
         int result = 0;
         table = Arrays.stream(table)
@@ -117,6 +120,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
+    @Deprecated
     public Map<String, Integer> evaluateStudyDays(String[][] table, Map<String, Integer> params) {
         int studyDays = table.length - getFreeDaysQuantity(table);
         int result = switch (studyDays) {
@@ -130,6 +134,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
+    @Deprecated
     public Map<String, Integer> evaluateLoadBalance(String[][] table, Map<String, Integer> params) {
         var quantityArr = Arrays.stream(table).map(EvaluationService::getLessonQuantity).toList();
         int length = quantityArr.size();
@@ -150,6 +155,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
+    @Deprecated
     public Map<String, Integer> evaluateDailyLoad(String[][] table, Map<String, Integer> params) {
         int totalLessons = getLessonQuantity(table);
 
@@ -167,6 +173,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
+    @Deprecated
     public Map<String, Integer> evaluateLessonStartTime(String[][] table, boolean senior, Map<String, Integer> params) {
         int result = 0;
         var dayStarts = Arrays.stream(table)
@@ -203,6 +210,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
+    @Deprecated
     public Map<String, Integer> evaluateLessonEndTime(String[][] table, boolean senior, Map<String, Integer> params) {
         int result = 0;
         var dayEnds = Arrays.stream(table)
@@ -244,6 +252,7 @@ public class EvaluationService implements EvaluationInterface {
     }
 
     @Override
+    @Deprecated
     public Map<String, Integer> evaluateWeekendDistribution(String[][] table, Map<String, Integer> params) {
         int result = 1;
         if (dayIsFree(table[5]) || dayIsFree(table[6])
@@ -260,6 +269,7 @@ public class EvaluationService implements EvaluationInterface {
 
 
     @Override
+    @Deprecated
     public Map<String, Integer> evaluateForHavingLongBreak(String[][] table, boolean senior, Map<String, Integer> params) {
         int result = 0;
         int count = 0;

@@ -79,27 +79,27 @@ public class TimeTableController {
     }
 
 
-    @GetMapping("/add_groups/")
-    public ResponseEntity<String> addGroups() {
-        try {
-            timeTableParser.getLinks(evaluationService, ttaService);
-            return ResponseEntity.ok("Groups added successfully.");
-        } catch (IOException e) {
-            log.error("IOException when add_groups : " + e);
-            log.error("IOException when add_groups: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to parse timetable links (IOException).");
-        } catch (ExecutionException e) {
-            log.error("ExecutionException when add_groups: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Execution error during group parsing.");
-        } catch (InterruptedException e) {
-            log.error("InterruptedException when add_groups: ", e);
-            Thread.currentThread().interrupt();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Request was interrupted.");
-        }
-    }
+//    @GetMapping("/add_groups/")
+//    public ResponseEntity<String> addGroups() {
+//        try {
+//            timeTableParser.getLinks(evaluationService, ttaService);
+//            return ResponseEntity.ok("Groups added successfully.");
+//        } catch (IOException e) {
+//            log.error("IOException when add_groups : " + e);
+//            log.error("IOException when add_groups: ", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("Failed to parse timetable links (IOException).");
+//        } catch (ExecutionException e) {
+//            log.error("ExecutionException when add_groups: ", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("Execution error during group parsing.");
+//        } catch (InterruptedException e) {
+//            log.error("InterruptedException when add_groups: ", e);
+//            Thread.currentThread().interrupt();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("Request was interrupted.");
+//        }
+//    }
 
 //    @GetMapping("/grades/")
 //    public String getGrades(Model model) {

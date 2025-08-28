@@ -1,5 +1,6 @@
 package com.project.tta.services;
 
+import com.project.tta.models.Setting;
 import com.project.tta.models.TTEvaluation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 @Service
@@ -21,6 +23,7 @@ public class TimeTableParser {
     static final String HOME_PATH = "https://www.miit.ru";
     private static final Logger log = LoggerFactory.getLogger(TimeTableParser.class);
 
+    @Deprecated
     public void getLinks(EvaluationService evaluationService, TTAService ttaService)
             throws IOException, ExecutionException, InterruptedException {
 
@@ -40,19 +43,36 @@ public class TimeTableParser {
                 }
             }
         }
-
-        allLinks.parallelStream()
-                .filter(link -> !ttaService.existByLink(link))
-                .forEach(link -> {
-                    try {
-                        TimeTable tt = getTimeTable(link);
-                        evaluationService.evaluateTimeTable(tt);
-                    } catch (Exception e) {
-                        log.error("Error processing link {}: {}", link, e.getMessage());
-                    }
-                });
     }
+        public void getLinks() throws IOException, ExecutionException, InterruptedException {
+            Document doc = Jsoup.connect(HOME_PATH + "/timetable/").get();
+            Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
 
+            List<String> allLinks = new ArrayList<>();
+
+            for (Element group : groups) {
+                Element aAttrs = group.selectFirst("a");
+                if (!aAttrs.attr("href").equals("#")) {
+                    allLinks.add(extractLink(aAttrs));
+                } else {
+                    Elements sameNameGroups = group.getElementsByClass("dropdown-menu").select("a");
+                    for (Element g : sameNameGroups) {
+                        allLinks.add(extractLink(g));
+                    }
+                }
+            }
+
+//        allLinks.parallelStream()
+//                .filter(link -> !ttaService.existByLink(link))
+//                .forEach(link -> {
+//                    try {
+//                        TimeTable tt = getTimeTable(link);
+//                        evaluationService.evaluateTimeTable(tt);
+//                    } catch (Exception e) {
+//                        log.error("Error processing link {}: {}", link, e.getMessage());
+//                    }
+//                });
+    }
 
 
     private String extractLink(Element element) {
@@ -86,11 +106,12 @@ public class TimeTableParser {
 //                    var linkArr = g.attr("href").split("/");
 //                    String link = linkArr[linkArr.length - 1];
 //                    if (!ttaService.existByLink(link)) {
-////                        ExecutorService executor = Executors.newSingleThreadExecutor();
-////                        Callable<TimeTable> task = () -> getTimeTable(link);
-////                        Future<TimeTable> future = executor.submit(task);
-////                        evaluationService.evaluateTimeTable(future.get());
-////                        executor.shutdown();
+
+    /// /                        ExecutorService executor = Executors.newSingleThreadExecutor();
+    /// /                        Callable<TimeTable> task = () -> getTimeTable(link);
+    /// /                        Future<TimeTable> future = executor.submit(task);
+    /// /                        evaluationService.evaluateTimeTable(future.get());
+    /// /                        executor.shutdown();
 //
 //                        evaluationService.evaluateTimeTable(getTimeTable(link));
 //                    }
@@ -101,7 +122,6 @@ public class TimeTableParser {
 //        //600 записей за 46 секунд
 //
 //    }//парсинг за 6 минут
-
     public String getGroupName(Document document) throws IOException {
         var h1 = document.selectFirst("h1").text().split(" ");
         String name = h1[h1.length - 1];
@@ -124,7 +144,7 @@ public class TimeTableParser {
         if (isEmpty(doc)) {
             throw new RuntimeException("HTML page is not containing time table");
         }
-        if (isPageEmpty(doc)){
+        if (isPageEmpty(doc)) {
             return null;
         }
 
@@ -133,13 +153,13 @@ public class TimeTableParser {
         String[][] secondWeek = getWeekTimetable(doc, "#week-2");
         if (firstWeek == null && secondWeek == null) return null;
         for (int i = 0; i < n / 2; i++) {
-            for (int j = 0; j < m - 1; j++) {
+            for (int j = 0; j < m; j++) {
                 timeTable[i][j] = firstWeek[i][j];
             }
         }
 
         for (int i = 0; i < n / 2; i++) {
-            for (int j = 0; j < m - 1; j++) {
+            for (int j = 0; j < m; j++) {
                 timeTable[i + n / 2][j] = secondWeek[i][j];
             }
         }
@@ -153,7 +173,7 @@ public class TimeTableParser {
         return new TimeTable(name, link, course, timeTable);
     }
 
-    private String[][] getWeekTimetable(Document doc, String weekNum){
+    private String[][] getWeekTimetable(Document doc, String weekNum) {
         int n = 6;
         int m = 8;
         String[][] timeTable = new String[n][m];
@@ -188,7 +208,6 @@ public class TimeTableParser {
         int startLesson = Integer.parseInt(elements.getFirst().text().substring(0, 1));
 
 
-        //https://www.miit.ru/timetable/193083 не парсит 8ю пару в пятницу
         for (int lesson = startLesson - 1; lesson < 8; lesson++) {
             if (currentIndex < elements.size() && elements.get(currentIndex).hasClass("text-right")) {
                 currentIndex++;
@@ -204,7 +223,7 @@ public class TimeTableParser {
             }
         }
         return timeTable;
-    }//рубличное api в виде grapql для выгрузки расписания
+    }
 
     private int getStartDayIndex(Elements headers) {
         List<String> days = Arrays.asList("понедельник", "вторник", "среда", "четверг", "пятница", "суббота"); //ПОН = 0, ...
@@ -258,11 +277,7 @@ public class TimeTableParser {
     }
 
 
-
-
-
-
-    public String printTimeTable(String[][] timeTable) {
+    public static String printTimeTable(String[][] timeTable) {
         if (timeTable == null) {
             System.out.println("Расписание пусто");
             return "";
