@@ -1,7 +1,5 @@
 package com.project.tta.services.criteria;
 
-import com.project.tta.services.EvaluationService;
-
 import java.util.Arrays;
 
 public class BasicCriteria {
@@ -26,6 +24,9 @@ public class BasicCriteria {
      * @return Возвращает true если в этот день нет пар
      */
     public static boolean dayIsFree(String[] dayTable) {
+        if (dayTable == null) {
+            return true;
+        }
         return Arrays.stream(dayTable).noneMatch(BasicCriteria::isBlank);
     }
 
