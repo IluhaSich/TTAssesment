@@ -8,14 +8,16 @@ public class Group extends BaseEntity{
     private String name;
     private String link;
     private Integer course;
+    private Setting setting;
     private TTEvaluation TTEvaluation;
 
     protected Group() {}
 
-    public Group(String name, String link, Integer course, TTEvaluation TTEvaluation) {
+    public Group(String name, String link, Integer course, Setting setting, TTEvaluation TTEvaluation) {
         this.name = name;
         this.link = link;
         this.course = course;
+        this.setting = setting;
         this.TTEvaluation = TTEvaluation;
     }
 
@@ -54,4 +56,23 @@ public class Group extends BaseEntity{
         this.course = course;
     }
 
+    @Enumerated(EnumType.STRING)
+    public Setting getSetting() {
+        return setting;
+    }
+
+    public void setSetting(Setting setting) {
+        this.setting = setting;
+    }
+
+    @Override
+    public String toString() {
+        return "Group{" +
+                "name='" + name + '\'' +
+                ", link='" + link + '\'' +
+                ", course=" + course +
+                ", setting=" + setting +
+                ", TTEvaluation=" + TTEvaluation +
+                '}';
+    }
 }

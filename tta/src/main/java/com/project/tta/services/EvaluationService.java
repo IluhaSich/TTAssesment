@@ -7,11 +7,11 @@ import com.project.tta.repositories.CriterionEvaluationRepository;
 import com.project.tta.repositories.GroupRepository;
 import com.project.tta.repositories.TTEvaluationRepository;
 import com.project.tta.services.interfaces.EvaluationInterface;
+import com.project.tta.services.parser.TimeTableParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
@@ -64,6 +64,7 @@ public class EvaluationService implements EvaluationInterface {
                 timeTable.getName(),
                 timeTable.getLink(),
                 timeTable.getCourse(),
+                null,
                 null);
         var ttEvalluation = new TTEvaluation(
                 group,

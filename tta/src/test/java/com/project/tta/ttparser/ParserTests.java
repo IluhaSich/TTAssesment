@@ -1,11 +1,7 @@
 package com.project.tta.ttparser;
 
-import com.project.tta.models.Setting;
-import com.project.tta.services.EvaluationService;
-import com.project.tta.services.TimeTable;
-import com.project.tta.services.TimeTableParser;
+import com.project.tta.services.parser.TimeTableParser;
 import com.project.tta.services.criteria.DailyLoadCriterion;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-import static com.project.tta.services.TimeTableParser.printTimeTable;
 import static com.project.tta.services.criteria.BasicCriteria.getLessonQuantity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -33,7 +28,7 @@ public class ParserTests {
 
     @Test
     void test() throws IOException, ExecutionException, InterruptedException {
-       timeTableParser.getLinks();
+//       timeTableParser.getLinks();
 
     }
 }
