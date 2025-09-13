@@ -46,6 +46,7 @@ public class DailyLoadCriterion implements EvaluationCriterion {
             String range = entry.getKey().trim(); // убираем пробелы
             if (matchesRange(totalLessons, range)) {
                 int result = entry.getValue();
+                System.out.println(totalLessons);
                 log.info("Matched range {} => result {}", range, result);
                 return result;
             }

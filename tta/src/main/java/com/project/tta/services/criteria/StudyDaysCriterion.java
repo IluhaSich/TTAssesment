@@ -48,8 +48,8 @@ public class StudyDaysCriterion implements EvaluationCriterion {
 
         int result = 0;
 
-        String[][] week1 = Arrays.copyOfRange(timeTable, 0, 5);
-        String[][] week2 = Arrays.copyOfRange(timeTable, 6, 11);
+        String[][] week1 = Arrays.copyOfRange(timeTable, 0, 6);
+        String[][] week2 = Arrays.copyOfRange(timeTable, 6, 12);
 
         for (int weekNum = 1; weekNum <= 2; weekNum++) {
             String[][] week = (weekNum == 1) ? week1 : week2;

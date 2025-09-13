@@ -16,8 +16,10 @@ public class StudyDaysTest {
 
     @Test
     void test() throws IOException {
-        System.out.println(studyDaysCriterion.evaluate(timeTableParser.getTimeTable("189103").getTimeTable(), Setting.BACHELOR));
-
+//        System.out.println(studyDaysCriterion.evaluate(timeTableParser.getTimeTable("189103").getTimeTable(), Setting.BACHELOR));
+//        System.out.println(studyDaysCriterion.evaluate(timeTableParser.getTimeTable("189112").getTimeTable(), Setting.BACHELOR_SENIOR));
+//        System.out.println(studyDaysCriterion.evaluate(timeTableParser.getTimeTable("190001").getTimeTable(), Setting.BACHELOR));
+        System.out.println(studyDaysCriterion.evaluate(timeTableParser.getTimeTable("193630").getTimeTable(), Setting.BACHELOR_SENIOR));
     }
 }
 

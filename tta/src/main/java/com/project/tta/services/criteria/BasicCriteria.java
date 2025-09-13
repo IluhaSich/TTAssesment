@@ -1,6 +1,7 @@
 package com.project.tta.services.criteria;
 
 import java.util.Arrays;
+import java.util.Set;
 
 public class BasicCriteria {
     /**
@@ -45,7 +46,26 @@ public class BasicCriteria {
      * @return true если строка не пуста
      */
 
+//    public static boolean isBlank(String str) {
+//        return str != null && !str.isEmpty();
+//    }
+
     public static boolean isBlank(String str) {
-        return str != null && !str.isEmpty();
+        if (str == null) {
+            return false;
+        }
+
+        String trimmed = str.trim();
+        if (trimmed.isEmpty()) {
+            return false;
+        }
+
+        // 3. Проверяем, является ли "Военная подготовка"
+        if ("Практическое занятие Военная подготовка".equals(trimmed)) {
+            return false;
+        }
+
+        // 4. Все остальные непустые строки — считаем занятыми
+        return true;
     }
 }
