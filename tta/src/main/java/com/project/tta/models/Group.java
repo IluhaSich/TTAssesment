@@ -6,14 +6,16 @@ import jakarta.persistence.*;
 @Table(name = "groups")
 public class Group extends BaseEntity{
     private String name;
+    private String courseName;
     private String link;
     private Integer course;
     private TTEvaluation TTEvaluation;
 
     protected Group() {}
 
-    public Group(String name, String link, Integer course, TTEvaluation TTEvaluation) {
+    public Group(String name, String courseName, String link, Integer course, TTEvaluation TTEvaluation) {
         this.name = name;
+        this.courseName = courseName;
         this.link = link;
         this.course = course;
         this.TTEvaluation = TTEvaluation;
@@ -22,6 +24,10 @@ public class Group extends BaseEntity{
     @Column(nullable = false)
     public String getName() {
         return name;
+    }
+
+    public String getCourseName() {
+        return courseName;
     }
 
     public String getLink() {
@@ -42,6 +48,10 @@ public class Group extends BaseEntity{
         this.name = name;
     }
 
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
     public void setLink(String link) {
         this.link = link;
     }
@@ -54,4 +64,14 @@ public class Group extends BaseEntity{
         this.course = course;
     }
 
+    @Override
+    public String toString() {
+        return "Group{" +
+                "name='" + name + '\'' +
+                ", courseName='" + courseName + '\'' +
+                ", link='" + link + '\'' +
+                ", course=" + course +
+                ", TTEvaluation=" + TTEvaluation +
+                '}';
+    }
 }

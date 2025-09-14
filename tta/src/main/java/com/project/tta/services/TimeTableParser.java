@@ -36,15 +36,18 @@ public class TimeTableParser {
             Element aAttrs = group.selectFirst("a");
             if (!aAttrs.attr("href").equals("#")) {
                 allLinks.add(extractLink(aAttrs));
+                //TODO: добавление названия и прочей информации о группе и возвращать Group
             } else {
                 Elements sameNameGroups = group.getElementsByClass("dropdown-menu").select("a");
                 for (Element g : sameNameGroups) {
                     allLinks.add(extractLink(g));
+                    //TODO: добавление названия и прочей информации о группе и возвращать Group
                 }
             }
         }
     }
-        public void getLinks() throws IOException, ExecutionException, InterruptedException {
+
+        public List<String> getLinks() throws IOException, ExecutionException, InterruptedException {
             Document doc = Jsoup.connect(HOME_PATH + "/timetable/").get();
             Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
 
@@ -61,6 +64,7 @@ public class TimeTableParser {
                     }
                 }
             }
+            return allLinks;
 
 //        allLinks.parallelStream()
 //                .filter(link -> !ttaService.existByLink(link))

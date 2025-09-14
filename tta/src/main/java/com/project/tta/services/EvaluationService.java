@@ -62,6 +62,7 @@ public class EvaluationService implements EvaluationInterface {
 
         var group = new Group(
                 timeTable.getName(),
+                null,
                 timeTable.getLink(),
                 timeTable.getCourse(),
                 null);
