@@ -1,7 +1,7 @@
 package com.project.tta.evaluation;
 
 import com.project.tta.models.Setting;
-import com.project.tta.services.TimeTableParser;
+import com.project.tta.services.parser.TimeTableParser;
 import com.project.tta.services.criteria.StudyDaysCriterion;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

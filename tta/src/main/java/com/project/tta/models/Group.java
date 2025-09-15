@@ -40,8 +40,10 @@ public class Group extends BaseEntity{
         return course;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "tt_evaluation_id")
+//    @OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "tt_evaluation_id")
+
+    @OneToOne(mappedBy = "group")
     public TTEvaluation getTTEvaluation() {
         return TTEvaluation;
     }

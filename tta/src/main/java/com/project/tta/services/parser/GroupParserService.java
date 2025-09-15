@@ -35,6 +35,7 @@ public class GroupParserService {
             } else {
                 Elements sameNameGroups = group.getElementsByClass("dropdown-menu").select("a");
                 for (Element g : sameNameGroups) {
+                    //TODO:Не парситься название кафедры для дропдаунов
                     allLinks.add(extractGroupInfo(g));
                 }
             }

@@ -7,7 +7,6 @@ import com.project.tta.repositories.CriterionEvaluationRepository;
 import com.project.tta.repositories.GroupRepository;
 import com.project.tta.repositories.TTEvaluationRepository;
 import com.project.tta.services.interfaces.EvaluationInterface;
-import com.project.tta.services.parser.TimeTableParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,13 +23,11 @@ public class EvaluationService implements EvaluationInterface {
     private final TTEvaluationRepository ttEvaluationRepository;
 
     private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
-    private final TimeTableParser timeTableParser;
 
-    public EvaluationService(CriterionEvaluationRepository criterionEvaluationRepository, GroupRepository groupRepository, TTEvaluationRepository ttEvaluationRepository, TimeTableParser timeTableParser) {
+    public EvaluationService(CriterionEvaluationRepository criterionEvaluationRepository, GroupRepository groupRepository, TTEvaluationRepository ttEvaluationRepository) {
         this.criterionEvaluationRepository = criterionEvaluationRepository;
         this.groupRepository = groupRepository;
         this.ttEvaluationRepository = ttEvaluationRepository;
-        this.timeTableParser = timeTableParser;
     }
 
     @Override

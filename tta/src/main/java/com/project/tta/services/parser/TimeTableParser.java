@@ -1,7 +1,8 @@
-package com.project.tta.services;
+package com.project.tta.services.parser;
 
 import com.project.tta.models.Setting;
 import com.project.tta.models.TTEvaluation;
+import com.project.tta.services.TimeTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -80,7 +81,7 @@ public class TimeTableParser {
         return false;
     }
 
-    public TimeTable getTimeTable(String link) throws IOException {
+    public String[][] getTimeTable(String link) throws IOException {
         int n = 12;
         int m = 8;
         Document doc = Jsoup.connect(HOME_PATH + "/timetable/" + link).get();
@@ -107,14 +108,41 @@ public class TimeTableParser {
             }
         }
 
-        //2025-04-18T13:57:09.902+03:00 ERROR 6540 --- [tta] [nio-8080-exec-1] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.net.SocketTimeoutException: Read timed out] with root cause
-        //
-        //java.net.SocketTimeoutException: Read timed out
-
-        var name = getGroupName(doc);
-        var course = getCourse(name);
-        return new TimeTable(name, link, course, timeTable);
+        return timeTable;
     }
+
+
+//    public TimeTable getTimeTable(String link) throws IOException {
+//        int n = 12;
+//        int m = 8;
+//        Document doc = Jsoup.connect(HOME_PATH + "/timetable/" + link).get();
+//        if (isEmpty(doc)) {
+//            throw new RuntimeException("HTML page is not containing time table");
+//        }
+//        if (isPageEmpty(doc)) {
+//            return null;
+//        }
+//
+//        String[][] timeTable = new String[n][m];
+//        String[][] firstWeek = getWeekTimetable(doc, "#week-1");
+//        String[][] secondWeek = getWeekTimetable(doc, "#week-2");
+//        if (firstWeek == null && secondWeek == null) return null;
+//        for (int i = 0; i < n / 2; i++) {
+//            for (int j = 0; j < m; j++) {
+//                timeTable[i][j] = firstWeek[i][j];
+//            }
+//        }
+//
+//        for (int i = 0; i < n / 2; i++) {
+//            for (int j = 0; j < m; j++) {
+//                timeTable[i + n / 2][j] = secondWeek[i][j];
+//            }
+//        }
+//
+//        var name = getGroupName(doc);
+//        var course = getCourse(name);
+//        return new TimeTable(name, link, course, timeTable);
+//    }
 
     private String[][] getWeekTimetable(Document doc, String weekNum) {
         int n = 6;
@@ -240,30 +268,4 @@ public class TimeTableParser {
         }
         return stringBuilder.toString();
     }
-
-    public static void main(String[] args) throws IOException {
-//        String link = "193083";
-//        String link = "189115";
-//        String link = "193560";
-
-//        String link = "193531";
-//        String link = "193334";
-        String link = "201878";
-//        String link = "196432"; // 0 za gaps
-//        String link = "189119"; // пустое расписание /// /https://www.miit.ru/timetable/189119 empty tt
-        TimeTableParser ttp = new TimeTableParser();
-        new Thread(() -> {
-            try {
-                ttp.getTimeTable(link);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
-        System.out.println(ttp.printTimeTable(ttp.getTimeTable(link).getTimeTable()));
-//        ttp.printTimeTable(ttp.getTimeTable(link).getTimeTable());
-    }
 }
-
-// https://www.miit.ru/timetable/193083 пятница и суббота учеба)) Index 12 out of bounds for length 12
-//        https://www.miit.ru/timetable/193531 непостоянное расписание
-//        https://www.miit.ru/timetable/193334 непостоянное расписание тд Расписание действует с 10.02.2025 по 18.06.2025

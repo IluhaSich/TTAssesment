@@ -12,7 +12,7 @@ public class TTEvaluation extends BaseEntity {
     private LocalDateTime localDateTime;
     private List<CriterionEvaluation> criterionEvaluationList;
 
-    protected TTEvaluation() {
+    public TTEvaluation() {
     }
 
     public TTEvaluation(Group group, Integer total_grade, LocalDateTime localDateTime, List<CriterionEvaluation> criterionEvaluationList) {
@@ -22,7 +22,10 @@ public class TTEvaluation extends BaseEntity {
         this.criterionEvaluationList = criterionEvaluationList;
     }
 
-    @OneToOne(mappedBy = "TTEvaluation", cascade = CascadeType.ALL)
+//    @OneToOne(mappedBy = "TTEvaluation", cascade = CascadeType.ALL)
+
+    @OneToOne
+    @JoinColumn(name = "group_id", nullable = false, unique = true)
     public Group getGroup() {
         return group;
     }
@@ -44,7 +47,7 @@ public class TTEvaluation extends BaseEntity {
         this.group = group;
     }
 
-    public void setTotal_grade(Integer total_grade) {
+    public void setTotalGrade(Integer total_grade) {
         this.total_grade = total_grade;
     }
 
@@ -56,4 +59,7 @@ public class TTEvaluation extends BaseEntity {
         this.criterionEvaluationList = criterionEvaluationList;
     }
 
+    public void setTotal_grade(Integer total_grade) {
+        this.total_grade = total_grade;
+    }
 }

@@ -2,7 +2,7 @@ package com.project.tta.ttparser;
 
 import com.project.tta.models.Group;
 import com.project.tta.services.*;
-import com.project.tta.services.TimeTableParser;
+import com.project.tta.services.parser.TimeTableParser;
 import com.project.tta.services.parser.GroupParserService;
 import com.project.tta.models.Setting;
 import com.project.tta.services.criteria.DailyLoadCriterion;

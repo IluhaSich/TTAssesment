@@ -1,8 +1,8 @@
 package com.project.tta.evaluation;
 
 import com.project.tta.models.Setting;
-import com.project.tta.services.TimeTableParser;
 import com.project.tta.services.criteria.GapsCriterion;
+import com.project.tta.services.parser.TimeTableParser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

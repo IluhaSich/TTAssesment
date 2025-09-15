@@ -10,7 +10,7 @@ public class CriterionEvaluation extends BaseEntity{
     private String criterionName;
     private Integer score;
 
-    protected CriterionEvaluation() {}
+    public CriterionEvaluation() {}
 
     public CriterionEvaluation(TTEvaluation TTEvaluation, String criterionName, Integer score) {
         this.TTEvaluation = TTEvaluation;
