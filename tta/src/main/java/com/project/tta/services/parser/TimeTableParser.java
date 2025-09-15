@@ -81,10 +81,37 @@ public class TimeTableParser {
         return false;
     }
 
+    private Document fetchDocumentWithRetry(String url, int maxRetries, int timeoutMillis) throws IOException {
+        IOException lastException = null;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                return Jsoup.connect(url)
+                        .timeout(timeoutMillis)
+                        .get();
+            } catch (IOException e) {
+                lastException = e;
+                log.warn("Попытка {} из {} не удалась при запросе {}: {}", attempt, maxRetries, url, e.getMessage());
+                try {
+                    // пауза между попытками (например, 2 секунды)
+                    Thread.sleep(2000L);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Ожидание между retry было прервано", ie);
+                }
+            }
+        }
+
+        throw new IOException("Не удалось получить документ после " + maxRetries + " попыток", lastException);
+    }
+
+
     public String[][] getTimeTable(String link) throws IOException {
         int n = 12;
         int m = 8;
-        Document doc = Jsoup.connect(HOME_PATH + "/timetable/" + link).get();
+        Document doc = fetchDocumentWithRetry(HOME_PATH + "/timetable/" + link, 3, 10_000);
+
+
         if (isEmpty(doc)) {
             throw new RuntimeException("HTML page is not containing time table");
         }
@@ -95,7 +122,14 @@ public class TimeTableParser {
         String[][] timeTable = new String[n][m];
         String[][] firstWeek = getWeekTimetable(doc, "#week-1");
         String[][] secondWeek = getWeekTimetable(doc, "#week-2");
-        if (firstWeek == null && secondWeek == null) return null;
+
+        if (firstWeek == null) {
+            firstWeek = new String[6][8];
+        }
+        if (secondWeek == null) {
+            secondWeek = new String[6][8];
+        }
+
         for (int i = 0; i < n / 2; i++) {
             for (int j = 0; j < m; j++) {
                 timeTable[i][j] = firstWeek[i][j];

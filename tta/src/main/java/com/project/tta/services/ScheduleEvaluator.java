@@ -5,6 +5,7 @@ import com.project.tta.repositories.GroupRepository;
 import com.project.tta.repositories.TTEvaluationRepository;
 import com.project.tta.services.criteria.interfaces.EvaluationCriterion;
 import com.project.tta.services.parser.TimeTableParser;
+import jakarta.annotation.PreDestroy;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,11 @@ public class ScheduleEvaluator {
     private final TTEvaluationRepository ttEvaluationRepository;
     private static final Logger log = LoggerFactory.getLogger(ScheduleEvaluator.class);
 
+    // общий пул потоков для парсинга и сохранения
+    private final ExecutorService executor = Executors.newFixedThreadPool(
+            Runtime.getRuntime().availableProcessors()
+    );
+
     public ScheduleEvaluator(List<EvaluationCriterion> criteria,
                              GroupRepository groupRepository,
                              TimeTableParser timeTableParser,
@@ -39,14 +45,14 @@ public class ScheduleEvaluator {
     }
 
     /**
-     * Транзакционный метод для оценки и сохранения одной группы
+     * Асинхронная оценка одной группы
      */
     @Transactional
     public TTEvaluation evaluateAndSaveGroup(Group group) throws IOException {
         log.info("Запуск оценки для группы: {}", group.getName());
 
-        // Проверяем, есть ли уже сохранённая оценка
-        Optional<TTEvaluation> existingEval = ttEvaluationRepository.findTopByGroupOrderByLocalDateTimeDesc(group);
+        Optional<TTEvaluation> existingEval =
+                ttEvaluationRepository.findTopByGroupOrderByLocalDateTimeDesc(group);
 
         if (existingEval.isPresent()) {
             log.info("Оценка для группы '{}' уже существует (дата {}). Пропуск.",
@@ -54,35 +60,27 @@ public class ScheduleEvaluator {
             return existingEval.get();
         }
 
-        log.debug("Оценка отсутствует, начинаем парсинг расписания...");
-
         int baseScore = 100;
         Map<String, Integer> scores = new HashMap<>();
 
-        // 🔹 Парсинг в отдельном потоке
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+        String[][] timeTable;
         try {
-            Callable<String[][]> task = () -> timeTableParser.getTimeTable(group.getLink());
-            Future<String[][]> future = executor.submit(task);
-
-            // ждем завершения парсинга
-            String[][] timeTable = future.get();
-
-            // Оценка по критериям
-            for (EvaluationCriterion criterion : criteria) {
-                int penalty = criterion.evaluate(timeTable, group.getSetting());
-                scores.put(criterion.getName(), penalty);
-                baseScore += penalty;
-                log.debug("Критерий '{}' дал штраф {}", criterion.getName(), penalty);
-            }
-        } catch (InterruptedException | ExecutionException e) {
+            // парсим расписание в текущем потоке пула
+            timeTable = timeTableParser.getTimeTable(group.getLink());
+        } catch (Exception e) {
             log.error("Ошибка при парсинге расписания для группы {}", group.getName(), e);
             throw new IOException("Ошибка при парсинге расписания", e);
-        } finally {
-            executor.shutdown();
         }
 
-        // итог
+        // считаем штрафы по критериям
+        for (EvaluationCriterion criterion : criteria) {
+            int penalty = criterion.evaluate(timeTable, group.getSetting());
+            scores.put(criterion.getName(), penalty);
+            baseScore += penalty;
+            log.debug("Критерий '{}' дал штраф {}", criterion.getName(), penalty);
+        }
+
+        // формируем сущность оценки
         TTEvaluation ttEvaluation = new TTEvaluation();
         ttEvaluation.setGroup(group);
         ttEvaluation.setLocalDateTime(LocalDateTime.now());
@@ -101,7 +99,10 @@ public class ScheduleEvaluator {
 
         ttEvaluation.setCriterionEvaluationList(criterionEvaluations);
 
-        // сохраняем в БД
+        // синхронизируем обе стороны OneToOne
+        group.setTTEvaluation(ttEvaluation);
+
+        // сохраняем
         TTEvaluation saved = ttEvaluationRepository.save(ttEvaluation);
 
         log.info("Оценка группы '{}' успешно создана. Итоговая оценка: {}", group.getName(), baseScore);
@@ -109,23 +110,33 @@ public class ScheduleEvaluator {
         return saved;
     }
 
-
     /**
-     * Массовая оценка всех групп
+     * Массовая параллельная оценка всех групп
      */
     public void evaluateAndSaveAll() {
         List<Group> groups = groupRepository.findAll();
 
-        groups.parallelStream().forEach(group -> {
-            try {
-                evaluateAndSaveGroup(group);
-            } catch (IOException e) {
-                log.error("Ошибка при оценке группы {}", group.getName(), e);
-                throw new RuntimeException("Ошибка при оценке группы " + group.getName(), e);
-            }
-        });
+        List<CompletableFuture<Void>> futures = groups.stream()
+                .map(group -> CompletableFuture.runAsync(() -> {
+                    try {
+                        evaluateAndSaveGroup(group);
+                    } catch (IOException e) {
+                        log.error("Ошибка при оценке группы {}", group.getName(), e);
+                        throw new RuntimeException(e);
+                    }
+                }, executor))
+                .toList();
+
+        // ждём завершения всех задач
+        futures.forEach(CompletableFuture::join);
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        executor.shutdown();
     }
 }
+
 
 //2025-09-15T05:12:20.292+03:00 ERROR 28080 --- [tta] [onPool-worker-2] c.p.tta.services.ScheduleEvaluator       : Ошибка при оценке группы ТПСу-651
 //

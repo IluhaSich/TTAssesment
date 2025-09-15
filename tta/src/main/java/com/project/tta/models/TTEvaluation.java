@@ -8,31 +8,30 @@ import java.util.List;
 @Entity
 public class TTEvaluation extends BaseEntity {
     private Group group;
-    private Integer total_grade;
+    private Integer totalGrade;
     private LocalDateTime localDateTime;
     private List<CriterionEvaluation> criterionEvaluationList;
 
     public TTEvaluation() {
     }
 
-    public TTEvaluation(Group group, Integer total_grade, LocalDateTime localDateTime, List<CriterionEvaluation> criterionEvaluationList) {
+    public TTEvaluation(Group group, Integer totalGrade, LocalDateTime localDateTime, List<CriterionEvaluation> criterionEvaluationList) {
         this.group = group;
-        this.total_grade = total_grade;
+        this.totalGrade = totalGrade;
         this.localDateTime = localDateTime;
         this.criterionEvaluationList = criterionEvaluationList;
     }
 
-//    @OneToOne(mappedBy = "TTEvaluation", cascade = CascadeType.ALL)
+//    @OneToOne(mappedBy = "TTEvaluation", cascade = CascadeType.ALL) // было изначально
 
-    @OneToOne
-    @JoinColumn(name = "group_id", nullable = false, unique = true)
+//    @OneToOne
+//    @JoinColumn(name = "group_id", nullable = false, unique = true)
+
+    @OneToOne @JoinColumn(name="group_id")
     public Group getGroup() {
         return group;
     }
 
-    public Integer getTotal_grade() {
-        return total_grade;
-    }
 
     public LocalDateTime getLocalDateTime() {
         return localDateTime;
@@ -47,8 +46,14 @@ public class TTEvaluation extends BaseEntity {
         this.group = group;
     }
 
+    public Integer getTotalGrade() {
+        return totalGrade;
+    }
+
+
+
     public void setTotalGrade(Integer total_grade) {
-        this.total_grade = total_grade;
+        this.totalGrade = total_grade;
     }
 
     public void setLocalDateTime(LocalDateTime localDateTime) {
@@ -60,6 +65,6 @@ public class TTEvaluation extends BaseEntity {
     }
 
     public void setTotal_grade(Integer total_grade) {
-        this.total_grade = total_grade;
+        this.totalGrade = total_grade;
     }
 }
