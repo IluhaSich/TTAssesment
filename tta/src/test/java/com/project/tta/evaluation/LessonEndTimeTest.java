@@ -17,7 +17,8 @@ public class LessonEndTimeTest {
 
     @Test
     void test() throws IOException {
-        System.out.println(lessonEndTimeCriterion.evaluate(timeTableParser.getTimeTable("189103").getTimeTable(), Setting.BACHELOR));
+//        System.out.println(lessonEndTimeCriterion.evaluate(timeTableParser.getTimeTable("189103"), Setting.BACHELOR));
+        System.out.println(lessonEndTimeCriterion.evaluate(timeTableParser.getTimeTable("193799"), Setting.BACHELOR));
 
     }
 }

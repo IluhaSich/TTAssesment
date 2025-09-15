@@ -99,9 +99,10 @@ public class  TTAService {
                 .map(group -> {
                     int total = 0;
                     if (group.getTTEvaluation() != null && group.getTTEvaluation().getCriterionEvaluationList() != null) {
-                        total = (int) group.getTTEvaluation().getCriterionEvaluationList().stream()
-                                .mapToDouble(CriterionEvaluation::getScore)
-                                .sum();
+//                        total = (int) group.getTTEvaluation().getCriterionEvaluationList().stream()
+//                                .mapToDouble(CriterionEvaluation::getScore)
+//                                .sum();
+                        total = (int) group.getTTEvaluation().getTotal_grade();
                     }
                     return new GroupTotalScore(
                             group.getName(),

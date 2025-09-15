@@ -44,7 +44,7 @@ public class LessonEndTimeCriterion implements EvaluationCriterion {
     @Override
     public int evaluate(String[][] timeTable, Setting setting) {
         Map<Integer, Integer> rules = penaltyRules.getOrDefault(setting, Map.of());
-        System.out.println(Arrays.deepToString(timeTable));
+//        System.out.println(Arrays.deepToString(timeTable));
         AtomicInteger totalPenalty = new AtomicInteger(0);
         int result = Arrays.stream(timeTable)
                 .filter(dayTable -> !dayIsFree(dayTable))
