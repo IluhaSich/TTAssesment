@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class TTAService {
+public class  TTAService {
     private final GroupRepository groupRepository;
     private final TTEvaluationRepository ttEvaluationRepository;
     private final CriterionEvaluationRepository criterionEvaluationRepository;

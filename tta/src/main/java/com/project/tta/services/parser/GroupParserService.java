@@ -1,7 +1,8 @@
-package com.project.tta.services;
+package com.project.tta.services.parser;
 
 import com.project.tta.models.Group;
-import jakarta.transaction.Transactional;
+import com.project.tta.models.Setting;
+import com.project.tta.services.GroupService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,6 +20,7 @@ import java.util.List;
 public class GroupParserService {
     static final String HOME_PATH = "https://www.miit.ru";
     private static final Logger log = LoggerFactory.getLogger(GroupParserService.class);
+
 
     public List<Group> getGroupsFromWeb() throws IOException {
         Document doc = Jsoup.connect(HOME_PATH + "/timetable/").get();
@@ -41,16 +43,23 @@ public class GroupParserService {
 
     }
 
-//    @Transactional
-//    public void saveGroupsFromWeb() throws IOException {
-//        var groupList = getGroupsFromWeb();
-//        groupList.parallelStream()
-//                .filter(group -> !ttaService.existByLink(group.getLink()))
-//                .forEach(group -> {
-//                    ttaService.save(group);
-//                    log.info("Extract and save group info from main page: {}",group);
-//                });
-//    }
+
+
+    /**
+     * Возвращает к какой категории относиться группа (Магистратура, старший или младший курс бакалавриата)
+     * @param groupName название группы
+     * @return Setting.MASTER, Setting.BACHELOR_SENIOR или Setting.BACHELOR
+     */
+    private Setting defineGroup(String groupName){
+        String numbers = groupName.split("-")[1];
+        if (numbers.charAt(1) == '7'){
+            return Setting.MASTER;
+        } else if (Character.getNumericValue(numbers.charAt(0)) > 2){
+            return Setting.BACHELOR_SENIOR;
+        }else {
+            return Setting.BACHELOR;
+        }
+    }
 
     private String extractLink(Element element) {
         String[] linkArr = element.attr("href").split("/");
@@ -62,8 +71,9 @@ public class GroupParserService {
         String groupName = element.attr("title");
         String link = Arrays.asList(element.attr("href").split("/")).getLast();
         Integer course = Integer.parseInt(name.split("-")[1].substring(0,1));
+        Setting setting = defineGroup(name);
 
-        var group = new Group(name,groupName,link,course,null);
+        var group = new Group(name,groupName,link,course,setting,null);
         return group;
     }
 }

@@ -1,29 +1,43 @@
 package com.project.tta.ttparser;
 
-import com.project.tta.models.Setting;
-import com.project.tta.services.EvaluationService;
-import com.project.tta.services.GroupParserService;
-import com.project.tta.services.TimeTable;
+import com.project.tta.models.Group;
+import com.project.tta.services.*;
 import com.project.tta.services.TimeTableParser;
+import com.project.tta.services.parser.GroupParserService;
+import com.project.tta.models.Setting;
 import com.project.tta.services.criteria.DailyLoadCriterion;
-import org.junit.jupiter.api.BeforeEach;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static com.project.tta.services.TimeTableParser.printTimeTable;
 import static com.project.tta.services.criteria.BasicCriteria.getLessonQuantity;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class ParserTests {
+    @Mock
+    private GroupService groupService;
+
+    @InjectMocks
+    private GroupParserService groupParserService;
+
     DailyLoadCriterion dailyLoadCriterion = new DailyLoadCriterion();
     TimeTableParser timeTableParser = new TimeTableParser();
-    GroupParserService groupParserService = new GroupParserService();
 
     @Test
     void shouldParseAllLessons() throws IOException {
@@ -38,6 +52,5 @@ public class ParserTests {
     void test() throws IOException, ExecutionException, InterruptedException {
         groupParserService.getGroupsFromWeb();
     }
-
 
 }

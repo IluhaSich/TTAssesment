@@ -6,14 +6,12 @@ import com.project.tta.models.Group;
 import com.project.tta.services.EvaluationService;
 import com.project.tta.services.InstituteMapper;
 import com.project.tta.services.TTAService;
-import com.project.tta.services.TimeTableParser;
+import com.project.tta.services.parser.TimeTableParser;
 import com.project.tta.viewModels.AllRecordsViewModel;
 import com.project.tta.viewModels.CriterionsModelView;
 import com.project.tta.viewModels.GroupViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

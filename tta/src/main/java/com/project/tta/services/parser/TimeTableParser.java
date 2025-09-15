@@ -23,67 +23,6 @@ public class TimeTableParser {
     static final String HOME_PATH = "https://www.miit.ru";
     private static final Logger log = LoggerFactory.getLogger(TimeTableParser.class);
 
-    @Deprecated
-    public void getLinks(EvaluationService evaluationService, TTAService ttaService)
-            throws IOException, ExecutionException, InterruptedException {
-
-        Document doc = Jsoup.connect(HOME_PATH + "/timetable/").get();
-        Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
-
-        List<String> allLinks = new ArrayList<>();
-
-        for (Element group : groups) {
-            Element aAttrs = group.selectFirst("a");
-            if (!aAttrs.attr("href").equals("#")) {
-                allLinks.add(extractLink(aAttrs));
-                //TODO: добавление названия и прочей информации о группе и возвращать Group
-            } else {
-                Elements sameNameGroups = group.getElementsByClass("dropdown-menu").select("a");
-                for (Element g : sameNameGroups) {
-                    allLinks.add(extractLink(g));
-                    //TODO: добавление названия и прочей информации о группе и возвращать Group
-                }
-            }
-        }
-    }
-
-        public List<String> getLinks() throws IOException, ExecutionException, InterruptedException {
-            Document doc = Jsoup.connect(HOME_PATH + "/timetable/").get();
-            Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
-
-            List<String> allLinks = new ArrayList<>();
-
-            for (Element group : groups) {
-                Element aAttrs = group.selectFirst("a");
-                if (!aAttrs.attr("href").equals("#")) {
-                    allLinks.add(extractLink(aAttrs));
-                } else {
-                    Elements sameNameGroups = group.getElementsByClass("dropdown-menu").select("a");
-                    for (Element g : sameNameGroups) {
-                        allLinks.add(extractLink(g));
-                    }
-                }
-            }
-            return allLinks;
-
-//        allLinks.parallelStream()
-//                .filter(link -> !ttaService.existByLink(link))
-//                .forEach(link -> {
-//                    try {
-//                        TimeTable tt = getTimeTable(link);
-//                        evaluationService.evaluateTimeTable(tt);
-//                    } catch (Exception e) {
-//                        log.error("Error processing link {}: {}", link, e.getMessage());
-//                    }
-//                });
-    }
-
-
-    private String extractLink(Element element) {
-        String[] linkArr = element.attr("href").split("/");
-        return linkArr[linkArr.length - 1];
-    }
-
 //    public void getLinks(EvaluationService evaluationService, TTAService ttaService) throws IOException, ExecutionException, InterruptedException {
 //        Document doc = Jsoup.connect(HOME_PATH + "/timetable/").get();
 //        Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
