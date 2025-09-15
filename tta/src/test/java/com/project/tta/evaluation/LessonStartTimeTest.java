@@ -15,7 +15,7 @@ public class LessonStartTimeTest {
     TimeTableParser timeTableParser = new TimeTableParser();
     @Test
     void test() throws IOException {
-        System.out.println(lessonStartTimeCriterion.evaluate(timeTableParser.getTimeTable("189103").getTimeTable(), Setting.BACHELOR));
+        System.out.println(lessonStartTimeCriterion.evaluate(timeTableParser.getTimeTable("189103"), Setting.BACHELOR));
 
     }
 }
