@@ -84,7 +84,10 @@ public class TimeTableParser {
     public String[][] getTimeTable(String link) throws IOException {
         int n = 12;
         int m = 8;
-        Document doc = Jsoup.connect(HOME_PATH + "/timetable/" + link).get();
+        Document doc = Jsoup.connect(HOME_PATH + "/timetable/" + link)
+                .timeout(60_000)
+                .get();
+
         if (isEmpty(doc)) {
             throw new RuntimeException("HTML page is not containing time table");
         }
@@ -95,7 +98,14 @@ public class TimeTableParser {
         String[][] timeTable = new String[n][m];
         String[][] firstWeek = getWeekTimetable(doc, "#week-1");
         String[][] secondWeek = getWeekTimetable(doc, "#week-2");
-        if (firstWeek == null && secondWeek == null) return null;
+
+        if (firstWeek == null) {
+            firstWeek = new String[6][8];
+        }
+        if (secondWeek == null) {
+            secondWeek = new String[6][8];
+        }
+
         for (int i = 0; i < n / 2; i++) {
             for (int j = 0; j < m; j++) {
                 timeTable[i][j] = firstWeek[i][j];

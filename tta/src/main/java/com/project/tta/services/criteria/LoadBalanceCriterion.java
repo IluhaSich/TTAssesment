@@ -1,7 +1,6 @@
 package com.project.tta.services.criteria;
 
 import com.project.tta.models.Setting;
-import com.project.tta.models.StudentProfile;
 import com.project.tta.services.EvaluationService;
 import com.project.tta.services.criteria.interfaces.EvaluationCriterion;
 import org.slf4j.Logger;

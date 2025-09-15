@@ -6,22 +6,23 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class CriterionEvaluation extends BaseEntity{
-    private TTEvaluation TTEvaluation;
+    private TTEvaluation ttEvaluation;
     private String criterionName;
     private Integer score;
 
     public CriterionEvaluation() {}
 
-    public CriterionEvaluation(TTEvaluation TTEvaluation, String criterionName, Integer score) {
-        this.TTEvaluation = TTEvaluation;
+    public CriterionEvaluation(TTEvaluation ttEvaluation, String criterionName, Integer score) {
+        this.ttEvaluation = ttEvaluation;
         this.criterionName = criterionName;
         this.score = score;
     }
 
     @ManyToOne
-    @JoinColumn(name = "time_table_evaluation_id")
+//    @JoinColumn(name = "time_table_evaluation_id")
+    @JoinColumn(name = "tt_evaluation_id")
     public TTEvaluation getTTEvaluation() {
-        return TTEvaluation;
+        return ttEvaluation;
     }
 
     public String getCriterionName() {
@@ -33,7 +34,7 @@ public class CriterionEvaluation extends BaseEntity{
     }
 
     public void setTTEvaluation(TTEvaluation TTEvaluation) {
-        this.TTEvaluation = TTEvaluation;
+        this.ttEvaluation = TTEvaluation;
     }
 
     public void setCriterionName(String criterionName) {

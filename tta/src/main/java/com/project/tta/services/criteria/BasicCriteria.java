@@ -1,6 +1,7 @@
 package com.project.tta.services.criteria;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
 public class BasicCriteria {
@@ -17,8 +18,15 @@ public class BasicCriteria {
      * @return Возвращает количество всех пар
      */
     public static int getLessonQuantity(String[][] timeTable) {
-        return Arrays.stream(timeTable).mapToInt(BasicCriteria::getLessonQuantity).sum();
+        if (timeTable == null) {
+            return 0;
+        }
+        return Arrays.stream(timeTable)
+                .filter(Objects::nonNull)
+                .mapToInt(BasicCriteria::getLessonQuantity)
+                .sum();
     }
+
 
     /**
      * @param dayTable расписание на день

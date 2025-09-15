@@ -41,9 +41,11 @@ public class Group extends BaseEntity{
     }
 
 //    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "tt_evaluation_id")
+//    @JoinColumn(name = "tt_evaluation_id") // было изначально
 
-    @OneToOne(mappedBy = "group")
+//    @OneToOne(mappedBy = "group")
+
+    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
     public TTEvaluation getTTEvaluation() {
         return TTEvaluation;
     }

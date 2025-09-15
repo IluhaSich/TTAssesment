@@ -1,14 +1,12 @@
 package com.project.tta.services.criteria;
 
 import com.project.tta.models.Setting;
-import com.project.tta.models.StudentProfile;
 import com.project.tta.services.EvaluationService;
 import com.project.tta.services.criteria.interfaces.EvaluationCriterion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.project.tta.services.criteria.BasicCriteria.getLessonQuantity;
@@ -17,7 +15,7 @@ import static com.project.tta.services.criteria.BasicCriteria.getLessonQuantity;
  */
 @Component
 public class DailyLoadCriterion implements EvaluationCriterion {
-    private Map<Setting, Map<String, Integer>> penaltyRules = Map.of(
+    private final Map<Setting, Map<String, Integer>> penaltyRules = Map.of(
     Setting.BACHELOR, Map.of(
                     "<28", -2,
                     "28-40", 0,
@@ -32,7 +30,7 @@ public class DailyLoadCriterion implements EvaluationCriterion {
                     ">20", -3)
     );
 
-    private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
+    private static final Logger log = LoggerFactory.getLogger(DailyLoadCriterion.class);
     @Override
     public String getName() {
         return "Daily Load";
