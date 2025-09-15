@@ -33,16 +33,20 @@ public class GroupParserService {
             if (!aAttrs.attr("href").equals("#")) {
                 allLinks.add(extractGroupInfo(aAttrs));
             } else {
+                Element parentToggle = group.selectFirst(".dropdown-toggle");
+                String courseName = parentToggle.attr("title");
+
                 Elements sameNameGroups = group.getElementsByClass("dropdown-menu").select("a");
                 for (Element g : sameNameGroups) {
-                    //TODO:Не парситься название кафедры для дропдаунов
-                    allLinks.add(extractGroupInfo(g));
+                    Group extracted = extractGroupInfo(g);
+                    extracted.setCourseName(courseName.trim());
+                    allLinks.add(extracted);
                 }
             }
         }
         return allLinks;
-
     }
+
 
 
 
