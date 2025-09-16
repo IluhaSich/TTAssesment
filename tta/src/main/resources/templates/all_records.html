@@ -89,19 +89,37 @@
     <thead>
     <tr>
         <th>
-            <a th:href="@{/grades/all(groupNameFilter=${groupNameFilter}, criterionNameFilter=${criterionNameFilter}, sortBy='groupName', sortOrder=${sortBy == 'groupName' && sortOrder == 'asc' ? 'desc' : 'asc'})}">
+            <a th:href="@{/grades/all(
+    instituteFilter=${selectedInstitute},
+    groupNameFilter=${selectedGroup},
+    criterionNameFilter=${selectedCriterion},
+    sortBy='groupName',
+    sortOrder=${sortBy == 'groupName' && sortOrder == 'asc' ? 'desc' : 'asc'}
+)}">
                 Группа
                 <span th:if="${sortBy == 'groupName'}" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"></span>
             </a>
         </th>
         <th>
-            <a th:href="@{/grades/all(groupNameFilter=${groupNameFilter}, criterionNameFilter=${criterionNameFilter}, sortBy='criterionName', sortOrder=${sortBy == 'criterionName' && sortOrder == 'asc' ? 'desc' : 'asc'})}">
+            <a th:href="@{/grades/all(
+    instituteFilter=${selectedInstitute},
+    groupNameFilter=${selectedGroup},
+    criterionNameFilter=${selectedCriterion},
+    sortBy='criterionName',
+    sortOrder=${sortBy == 'criterionName' && sortOrder == 'asc' ? 'desc' : 'asc'}
+)}">
                 Критерий
                 <span th:if="${sortBy == 'criterionName'}" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"></span>
             </a>
         </th>
         <th>
-            <a th:href="@{/grades/all(groupNameFilter=${groupNameFilter}, criterionNameFilter=${criterionNameFilter}, sortBy='score', sortOrder=${sortBy == 'score' && sortOrder == 'asc' ? 'desc' : 'asc'})}">
+            <a th:href="@{/grades/all(
+    instituteFilter=${selectedInstitute},
+    groupNameFilter=${selectedGroup},
+    criterionNameFilter=${selectedCriterion},
+    sortBy='score',
+    sortOrder=${sortBy == 'score' && sortOrder == 'asc' ? 'desc' : 'asc'}
+)}">
                 Баллы
                 <span th:if="${sortBy == 'score'}" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"></span>
             </a>
