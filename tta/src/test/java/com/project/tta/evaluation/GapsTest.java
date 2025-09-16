@@ -16,9 +16,10 @@ public class GapsTest {
 
     @Test
     void test() throws IOException {
+        System.out.println(gapsCriterion.evaluate(timeTableParser.getTimeTable("202017"), Setting.BACHELOR));
         System.out.println(gapsCriterion.evaluate(timeTableParser.getTimeTable("189103"), Setting.BACHELOR));
-        System.out.println(gapsCriterion.evaluate(timeTableParser.getTimeTable("189112"), Setting.BACHELOR_SENIOR));
-        System.out.println(gapsCriterion.evaluate(timeTableParser.getTimeTable("190001"), Setting.MASTER));
+//        System.out.println(gapsCriterion.evaluate(timeTableParser.getTimeTable("189112"), Setting.BACHELOR_SENIOR));
+//        System.out.println(gapsCriterion.evaluate(timeTableParser.getTimeTable("190001"), Setting.MASTER));
 
     }
 }

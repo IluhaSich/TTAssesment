@@ -35,7 +35,7 @@ public class GapsCriterion implements EvaluationCriterion {
     private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
     @Override
     public String getName() {
-        return "Timetable gaps";
+        return "Окна в расписании";
     }
 
     @Override
@@ -43,8 +43,8 @@ public class GapsCriterion implements EvaluationCriterion {
         Map<Integer, Integer> rules = penaltyRules.getOrDefault(setting, Map.of());
         int totalPenalty = 0;
 
-        String[][] week1 = Arrays.copyOfRange(timeTable, 0, 5);
-        String[][] week2 = Arrays.copyOfRange(timeTable, 5, 10);
+        String[][] week1 = Arrays.copyOfRange(timeTable, 0, 6);
+        String[][] week2 = Arrays.copyOfRange(timeTable, 6, 12);
 
         for (int weekNum = 1; weekNum <= 2; weekNum++) {
             String[][] week = (weekNum == 1) ? week1 : week2;

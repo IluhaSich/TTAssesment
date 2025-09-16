@@ -37,7 +37,7 @@ public class LessonEndTimeCriterion implements EvaluationCriterion {
     private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
     @Override
     public String getName() {
-        return "Lesson End Time";
+        return "Время окончания пар";
     }
 
     @Override
@@ -65,7 +65,7 @@ public class LessonEndTimeCriterion implements EvaluationCriterion {
                     int penalty = rules.getOrDefault(period, 0);
                     totalPenalty.addAndGet(penalty);
 
-                    log.info("Day ends after => {}, result => {}", period, penalty);
+//                    log.info("Day ends after => {}, result => {}", period, penalty);
 
                     return penalty;
                 })
