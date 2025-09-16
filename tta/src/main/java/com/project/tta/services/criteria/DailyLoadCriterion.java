@@ -33,7 +33,7 @@ public class DailyLoadCriterion implements EvaluationCriterion {
     private static final Logger log = LoggerFactory.getLogger(DailyLoadCriterion.class);
     @Override
     public String getName() {
-        return "Daily Load";
+        return "Количество пар";
     }
     @Override
     public int evaluate(String[][] timeTable, Setting setting) {

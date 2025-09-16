@@ -36,7 +36,7 @@ public class StudyDaysCriterion implements EvaluationCriterion {
 
     @Override
     public String getName() {
-        return "quantity of study days in week";
+        return "Количество учебных дней в неделю";
     }
 
     @Override
@@ -60,8 +60,8 @@ public class StudyDaysCriterion implements EvaluationCriterion {
                 int nonEmptyCount = (int) Arrays.stream(day)
                         .filter(BasicCriteria::isBlank)
                         .count();
-                log.info("  День {}: занято пар = {}, свободен = {}",
-                        i + 1, nonEmptyCount, free);
+//                log.info("  День {}: занято пар = {}, свободен = {}",
+//                        i + 1, nonEmptyCount, free);
             }
 
             int studyDaysInWeek = (int) Arrays.stream(week)
@@ -71,7 +71,7 @@ public class StudyDaysCriterion implements EvaluationCriterion {
             int penalty = rules.getOrDefault(studyDaysInWeek, 0);
             result += penalty;
 
-            log.info("week {} => {} study days, result => {}", weekNum, studyDaysInWeek, penalty);
+//            log.info("week {} => {} study days, result => {}", weekNum, studyDaysInWeek, penalty);
         }
 
         log.info("Final result => {}",result);

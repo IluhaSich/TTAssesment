@@ -3,6 +3,7 @@ package com.project.tta.controllers;
 import com.project.tta.dtos.GroupTotalScore;
 import com.project.tta.models.CriterionEvaluation;
 import com.project.tta.models.Group;
+import com.project.tta.models.Setting;
 import com.project.tta.services.EvaluationService;
 import com.project.tta.services.InstituteMapper;
 import com.project.tta.services.TTAService;
@@ -45,30 +46,31 @@ public class TimeTableController {
 //    }
 
     //TODO: сделать добавление по названию группы (второй контроллер)
-//    @GetMapping("/grades/{link}")
-//    public String getGrade(@PathVariable String link, Model model) {
-//        Group group = null;
-//        if (ttaService.existByLink(link)) {
-//            group = ttaService.findByLink(link);
-//        } else {
+    @GetMapping("/grades/{link}")
+    public String getGrade(@PathVariable String link, Model model) {
+        Group group = null;
+        if (ttaService.existByLink(link)) {
+            group = ttaService.findByLink(link);
+        } else {
 //            try {
 //                var timeTable = timeTableParser.getTimeTable(link);
 //                group = evaluationService.evaluateTimeTable(timeTable);
 //            } catch (IOException e) {
 //                log.error("IOException when getGrade with link = " + link + " :" + e);
 //            }
-//        }
-//
-//        var g = new GroupViewModel(
-//                group.getName(),
-//                group.getLink(),
-//                group.getTTEvaluation().getTotal_grade(),
-//                group.getTTEvaluation().getCriterionEvaluationList().stream()
-//                        .map(c -> new CriterionsModelView(c.getCriterionName(), c.getScore()))
-//                        .toList());
-//        model.addAttribute("model", g);
-//        return "group";
-//    }
+            return "stop";
+        }
+
+        var g = new GroupViewModel(
+                group.getName(),
+                group.getLink(),
+                group.getTTEvaluation().getTotalGrade(),
+                group.getTTEvaluation().getCriterionEvaluationList().stream()
+                        .map(c -> new CriterionsModelView(c.getCriterionName(), c.getScore()))
+                        .toList());
+        model.addAttribute("model", g);
+        return "group";
+    }
 
 
 //    @GetMapping("/add_groups/")
@@ -205,11 +207,18 @@ public class TimeTableController {
     public String getTotalResults(
             @RequestParam(required = false, defaultValue = "groupName") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String sortOrder,
+            @RequestParam(required = false) Setting setting,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "30") int size,
             Model model) {
 
         List<GroupTotalScore> totalScores = ttaService.calculateTotalScores();
+
+        if (setting != null) {
+            totalScores = totalScores.stream()
+                    .filter(score -> setting.equals(score.getSetting()))
+                    .toList();
+        }
 
         if ("groupName".equalsIgnoreCase(sortBy)) {
             totalScores = "asc".equalsIgnoreCase(sortOrder) ?
@@ -232,6 +241,7 @@ public class TimeTableController {
         model.addAttribute("currentPage", page);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortOrder", sortOrder);
+        model.addAttribute("setting", setting);
 
         return "total_results";
     }

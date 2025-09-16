@@ -36,7 +36,7 @@ public class LessonStartTimeCriterion implements EvaluationCriterion {
     private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
     @Override
     public String getName() {
-        return "Lesson Start Time";
+        return "Время начала пар";
     }
 
     @Override
@@ -63,7 +63,7 @@ public class LessonStartTimeCriterion implements EvaluationCriterion {
                     int penalty = rules.getOrDefault(period, 0);
                     totalPenalty.addAndGet(penalty);
 
-                    log.info("Day starts with => {}, result => {}", period, penalty);
+//                    log.info("Day starts with => {}, result => {}", period, penalty);
 
                     return penalty;
                 })

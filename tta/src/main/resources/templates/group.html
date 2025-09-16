@@ -10,7 +10,7 @@
             <div class="col-md-2"></div>
             <div class="jumbotron text-center rounded col-md-8 align-self-center pt-5">
                 <h2 th:text="'Group: ' +${model.name}"></h2>
-                <h2 th:text="'Group total grade = ' +${model.totalGrade}"></h2>
+                <h2 th:text="'Group total grade = ' +${model.totalGrade} + '/100'"></h2>
                 <div th:if="${not #lists.isEmpty(model.criterionModelViews)}">
                     <div th:each="criterion : ${model.criterionModelViews}"
                          class="d-flex flex-column bg-text mb-3 p-3 border rounded">

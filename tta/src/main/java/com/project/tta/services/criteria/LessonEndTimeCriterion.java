@@ -37,13 +37,13 @@ public class LessonEndTimeCriterion implements EvaluationCriterion {
     private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
     @Override
     public String getName() {
-        return "Lesson End Time";
+        return "Время окончания пар";
     }
 
     @Override
     public int evaluate(String[][] timeTable, Setting setting) {
         Map<Integer, Integer> rules = penaltyRules.getOrDefault(setting, Map.of());
-        System.out.println(Arrays.deepToString(timeTable));
+//        System.out.println(Arrays.deepToString(timeTable));
         AtomicInteger totalPenalty = new AtomicInteger(0);
         int result = Arrays.stream(timeTable)
                 .filter(dayTable -> !dayIsFree(dayTable))
@@ -65,7 +65,7 @@ public class LessonEndTimeCriterion implements EvaluationCriterion {
                     int penalty = rules.getOrDefault(period, 0);
                     totalPenalty.addAndGet(penalty);
 
-                    log.info("Day ends after => {}, result => {}", period, penalty);
+//                    log.info("Day ends after => {}, result => {}", period, penalty);
 
                     return penalty;
                 })

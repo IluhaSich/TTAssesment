@@ -96,19 +96,16 @@ public class  TTAService {
     public List<GroupTotalScore> calculateTotalScores() {
         List<Group> groups = groupRepository.findAll();
         return groups.stream()
-                .map(group -> {
-                    int total = 0;
-                    if (group.getTTEvaluation() != null && group.getTTEvaluation().getCriterionEvaluationList() != null) {
-                        total = (int) group.getTTEvaluation().getCriterionEvaluationList().stream()
-                                .mapToDouble(CriterionEvaluation::getScore)
-                                .sum();
-                    }
-                    return new GroupTotalScore(
-                            group.getName(),
-                            group.getLink(),
-                            total
-                    );
-                })
+                .filter(group ->
+                        group.getTTEvaluation() != null &&
+                                group.getTTEvaluation().getTotalGrade() != null
+                )
+                .map(group -> new GroupTotalScore(
+                        group.getName(),
+                        group.getLink(),
+                        group.getSetting(),
+                        (int) group.getTTEvaluation().getTotalGrade()
+                ))
                 .toList();
     }
 
