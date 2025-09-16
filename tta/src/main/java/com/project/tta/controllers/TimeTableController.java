@@ -122,17 +122,6 @@ public class TimeTableController {
             @RequestParam(defaultValue = "30") int size,
             Model model) {
 
-//        List<Group> groups = ttaService.findAllGroups();
-//        List<CriterionEvaluation> criteria = ttaService.findAllCriteria();
-//
-//        Set<String> institutes = groups.stream()
-//                .map(group -> InstituteMapper.getInstituteByGroupName(group.getName()))
-//                .filter(s -> !s.isEmpty())
-//                .collect(Collectors.toSet());
-//
-//        List<Group> filteredGroups = ttaService.findGroupsByInstituteAndFilters(instituteFilter, groupNameFilter);
-//
-//        List<CriterionEvaluation> filteredCriteria = ttaService.findCriteriaByFilter(criterionNameFilter);
         List<Group> groups = ttaService.findAllGroupsFilteredByInstitute(instituteFilter);
 
         List<CriterionEvaluation> criteria = ttaService.findAllCriteria();

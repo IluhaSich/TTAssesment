@@ -7,6 +7,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CriterionEvaluationRepository extends BaseRepository<CriterionEvaluation,Long>{
-    @Query("SELECT ce FROM CriterionEvaluation ce WHERE LOWER(ce.criterionName) LIKE %:query%")
+    @Query("SELECT ce FROM CriterionEvaluation ce WHERE LOWER(ce.criterionName) = :query")
     List<CriterionEvaluation> findByFilter(@Param("query") String query);
 }
