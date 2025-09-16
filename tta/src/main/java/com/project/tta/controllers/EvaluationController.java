@@ -16,7 +16,8 @@ public class EvaluationController {
     }
 
     @GetMapping("/")
-    public void evaluate(){
+    public String evaluate(){
         scheduleEvaluator.evaluateAndSaveAll();
+        return "ready";
     }
 }

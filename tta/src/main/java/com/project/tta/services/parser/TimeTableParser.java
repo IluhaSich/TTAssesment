@@ -24,48 +24,6 @@ public class TimeTableParser {
     static final String HOME_PATH = "https://www.miit.ru";
     private static final Logger log = LoggerFactory.getLogger(TimeTableParser.class);
 
-//    public void getLinks(EvaluationService evaluationService, TTAService ttaService) throws IOException, ExecutionException, InterruptedException {
-//        Document doc = Jsoup.connect(HOME_PATH + "/timetable/").get();
-//        Elements groups = doc.getElementsByClass("timetable-url d-inline-block");
-//        for (Element group : groups) {
-//            Element aAttrs = group.selectFirst("a");
-//            if (!aAttrs.attr("href").equals("#")) {
-//                var linkArr = aAttrs.attr("href").split("/");
-//                String link = linkArr[linkArr.length - 1];
-//                if (!ttaService.existByLink(link)) {
-////                    ExecutorService executor = Executors.newSingleThreadExecutor();
-////                    Callable<TimeTable> task = () -> getTimeTable(link);
-////                    Future<TimeTable> future = executor.submit(task);
-////                    evaluationService.evaluateTimeTable(future.get());
-////                    executor.shutdown();
-//
-//                    evaluationService.evaluateTimeTable(getTimeTable(link));
-//                }
-//                //TODO: update!
-//
-//            } else {
-//                Elements sameNameGroups = group.getElementsByClass("dropdown-menu")
-//                        .select("a");
-//                for (Element g : sameNameGroups) {
-//                    var linkArr = g.attr("href").split("/");
-//                    String link = linkArr[linkArr.length - 1];
-//                    if (!ttaService.existByLink(link)) {
-
-    /// /                        ExecutorService executor = Executors.newSingleThreadExecutor();
-    /// /                        Callable<TimeTable> task = () -> getTimeTable(link);
-    /// /                        Future<TimeTable> future = executor.submit(task);
-    /// /                        evaluationService.evaluateTimeTable(future.get());
-    /// /                        executor.shutdown();
-//
-//                        evaluationService.evaluateTimeTable(getTimeTable(link));
-//                    }
-//                    //TODO: update!
-//                }
-//            }
-//        }
-//        //600 записей за 46 секунд
-//
-//    }//парсинг за 6 минут
     public String getGroupName(Document document) throws IOException {
         var h1 = document.selectFirst("h1").text().split(" ");
         String name = h1[h1.length - 1];
@@ -93,7 +51,6 @@ public class TimeTableParser {
                 lastException = e;
                 log.warn("Попытка {} из {} не удалась при запросе {}: {}", attempt, maxRetries, url, e.getMessage());
                 try {
-                    // пауза между попытками (например, 2 секунды)
                     Thread.sleep(2000L);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();

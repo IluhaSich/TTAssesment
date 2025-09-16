@@ -45,7 +45,7 @@ public class LoadBalanceCriterion implements EvaluationCriterion {
                     7, -5,
                     8, -6)
     );
-    private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
+    private static final Logger log = LoggerFactory.getLogger(LoadBalanceCriterion.class);
     @Override
     public String getName() {
         return "Среднее количество пар";

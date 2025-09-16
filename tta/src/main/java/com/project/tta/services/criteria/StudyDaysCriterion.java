@@ -26,13 +26,14 @@ public class StudyDaysCriterion implements EvaluationCriterion {
                     5, 0,
                     6, -2),
             Setting.MASTER, Map.of(
-                    2, 0,
-                    3, 0,
-                    4, -1,
-                    5, -3,
-                    6, -4)
+                    1, -1,
+                    2, -1,
+                    3, -1,
+                    4, 0,
+                    5, 0,
+                    6, -1)
     );
-    private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
+    private static final Logger log = LoggerFactory.getLogger(StudyDaysCriterion.class);
 
     @Override
     public String getName() {

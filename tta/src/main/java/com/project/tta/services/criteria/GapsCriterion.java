@@ -1,16 +1,17 @@
 package com.project.tta.services.criteria;
 
 import com.project.tta.models.Setting;
-import com.project.tta.services.EvaluationService;
 import com.project.tta.services.criteria.interfaces.EvaluationCriterion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
-import static com.project.tta.services.criteria.BasicCriteria.dayIsFree;
 import static com.project.tta.services.criteria.BasicCriteria.isBlank;
 
 @Component
@@ -18,21 +19,33 @@ public class GapsCriterion implements EvaluationCriterion {
     private Map<Setting, Map<Integer, Integer>> penaltyRules = Map.of(
             Setting.BACHELOR, Map.of(
                     0, 0,
-                    1, -1,
-                    2, -3,
-                    3, -5),
+                    1, -5,
+                    2, -7,
+                    3, -10,
+                    4, -10,
+                    5, -10,
+                    6, -10
+            ),
             Setting.BACHELOR_SENIOR, Map.of(
                     0, 0,
-                    1, 0,
-                    2, -2,
-                    3, -4),
+                    1, -5,
+                    2, -7,
+                    3, -10,
+                    4, -10,
+                    5, -10,
+                    6, -10
+            ),
             Setting.MASTER, Map.of(
                     0, 0,
-                    1, -2,
-                    2, -4,
-                    3, -6)
+                    1, -5,
+                    2, -7,
+                    3, -10,
+                    4, -10,
+                    5, -10,
+                    6, -10
+            )
     );
-    private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
+    private static final Logger log = LoggerFactory.getLogger(GapsCriterion.class);
     @Override
     public String getName() {
         return "Окна в расписании";
@@ -40,30 +53,47 @@ public class GapsCriterion implements EvaluationCriterion {
 
     @Override
     public int evaluate(String[][] timeTable, Setting setting) {
-        Map<Integer, Integer> rules = penaltyRules.getOrDefault(setting, Map.of());
-        int totalPenalty = 0;
+        int totalScore = 0;
 
-        String[][] week1 = Arrays.copyOfRange(timeTable, 0, 6);
-        String[][] week2 = Arrays.copyOfRange(timeTable, 6, 12);
+        // Фильтруем пустые дни
+        String[][] filteredTable = Arrays.stream(timeTable)
+                .filter(Predicate.not(BasicCriteria::dayIsFree))
+                .toArray(String[][]::new);
 
-        for (int weekNum = 1; weekNum <= 2; weekNum++) {
-            String[][] week = (weekNum == 1) ? week1 : week2;
-            int weeklyGaps = 0;
+        for (String[] dayTable : filteredTable) {
+            int maxGap = 0;
 
-            for (String[] day : week) {
-                if (dayIsFree(day)) continue;
-                weeklyGaps += countGapsInDay(day);
+            // Переводим день в булев массив (true = пара пустая)
+            Boolean[] dayTableBool = Arrays.stream(dayTable)
+                    .map(BasicCriteria::isBlank)
+                    .toArray(Boolean[]::new);
+
+            // Индексы пустых пар
+            List<Integer> emptyIndexes = new ArrayList<>();
+            for (int i = 0; i < dayTableBool.length; i++) {
+                if (dayTableBool[i]) {
+                    emptyIndexes.add(i);
+                }
             }
 
-            int penalty = rules.getOrDefault(weeklyGaps, 0);
-            totalPenalty += penalty;
+            // Считаем промежутки (gap) между пустыми парами
+            for (int i = 0; i < emptyIndexes.size() - 1; i++) {
+                int gap = emptyIndexes.get(i + 1) - emptyIndexes.get(i) - 1;
+                if (gap > maxGap) {
+                    maxGap = gap;
+                }
+            }
 
-            log.info("Неделя {}: {} внутридневных окон, штраф: {}", weekNum, weeklyGaps, penalty);
+            // Применяем штрафы в зависимости от Setting
+            Map<Integer, Integer> rules = penaltyRules.getOrDefault(setting, Map.of());
+            int penalty = rules.getOrDefault(maxGap, -10); // если больше 6, берём -10
+            totalScore += penalty;
         }
 
-        log.info("Итоговый штраф по критерию 'внутридневные окна': {}", totalPenalty);
-        return totalPenalty;
+        log.info("Оценка по окнам ({}): {}", setting, totalScore);
+        return totalScore;
     }
+
 
     private int countGapsInDay(String[] day) {
         boolean inGap = false;
@@ -87,5 +117,4 @@ public class GapsCriterion implements EvaluationCriterion {
         }
         return gaps;
     }
-
 }

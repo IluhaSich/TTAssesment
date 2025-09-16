@@ -18,23 +18,37 @@ import static com.project.tta.services.criteria.BasicCriteria.isBlank;
 public class LessonEndTimeCriterion implements EvaluationCriterion {
     private Map<Setting, Map<Integer, Integer>> penaltyRules = Map.of(
             Setting.BACHELOR, Map.of(
-                    5, 0,
+                    1, 0,
+                    2, 0,
+                    3, 0,
+                    4, 0,
+                    5, -1,
                     6, -1,
                     7, -2,
-                    8, -3),
+                    8, -3
+            ),
             Setting.BACHELOR_SENIOR, Map.of(
-                    6, -2,
-                    7, 0,
-                    8, -3),
-            Setting.MASTER, Map.of(
+                    1, -2,
+                    2, -1,
                     3, -1,
                     4, -1,
                     5, 0,
                     6, 0,
-                    7, -1,
-                    8, -1)
+                    7, 0,
+                    8, 0
+            ),
+            Setting.MASTER, Map.of(
+                    1, -3,
+                    2, -2,
+                    3, -1,
+                    4, -1,
+                    5, 0,
+                    6, 0,
+                    7, 0,
+                    8, 0
+            )
     );
-    private static final Logger log = LoggerFactory.getLogger(EvaluationService.class);
+    private static final Logger log = LoggerFactory.getLogger(LessonEndTimeCriterion.class);
     @Override
     public String getName() {
         return "Время окончания пар";
